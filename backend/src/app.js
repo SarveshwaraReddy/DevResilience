@@ -35,11 +35,11 @@ app.use('/api/v1/stories', storyRoutes);
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   // Set static folder
-  app.use(express.static(path.join(__dirname, '../../dist')));
+  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 
   // Any route that is not API will be redirected to index.html
   app.use((req, res) => {
-    res.sendFile(path.resolve(__dirname, '../../dist', 'index.html'));
+    res.sendFile(path.resolve(__dirname, '../../frontend/dist', 'index.html'));
   });
 } else {
   // Base route for development
