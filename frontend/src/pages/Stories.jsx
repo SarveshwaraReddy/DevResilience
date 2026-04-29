@@ -42,7 +42,7 @@ export default function Stories() {
   const fetchStories = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/v1/stories', {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -76,7 +76,7 @@ export default function Stories() {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/v1/stories', {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify(formData)
@@ -104,7 +104,7 @@ export default function Stories() {
     }
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`/api/v1/stories/${storyId}`, {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories/${storyId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

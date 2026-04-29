@@ -35,7 +35,7 @@ export default function Dashboard() {
     if (!token) return;
 
     // Fetch Weather Context
-    fetch('/api/v1/insights/weather-context', {
+    fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/insights/weather-context`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -44,7 +44,7 @@ export default function Dashboard() {
       });
 
     // Fetch Heatmap (still fetching but we don't use it for the graph anymore)
-    fetch('/api/v1/insights/heatmap', {
+    fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/insights/heatmap`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -57,7 +57,7 @@ export default function Dashboard() {
     if (!token || !user) return;
 
     // Fetch Stories for Graph
-    fetch('/api/v1/stories', {
+    fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

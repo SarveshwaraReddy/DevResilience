@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (token) {
       // Fetch user profile if token exists
-      fetch('/api/v1/auth/me', {
+      fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/auth/me`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const res = await fetch('/api/v1/auth/login', {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password, role) => {
-    const res = await fetch('/api/v1/auth/register', {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password, role })
