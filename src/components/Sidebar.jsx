@@ -1,13 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Users, MessageSquare, Settings } from "lucide-react";
+import { Home, BookOpen, Users, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home },
-  { name: "Stories", href: "/stories", icon: BookOpen },
-  { name: "Network", href: "/network", icon: Users },
-  { name: "Mentors", href: "/mentors", icon: MessageSquare },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Dashboard", href: "/dashboard", icon: Home },
+  { name: "Stories", href: "/dashboard/stories", icon: BookOpen },
+  { name: "Network", href: "/dashboard/network", icon: Users },
+  { name: "Mentors", href: "/dashboard/mentors", icon: MessageSquare },
 ];
 
 export default function Sidebar() {

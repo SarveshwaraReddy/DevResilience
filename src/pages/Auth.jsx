@@ -1,11 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
+import { useAuth } from "../context/AuthContext";
 
 export default function Auth() {
   const containerRef = useRef(null);
   const [activeTab, setActiveTab] = useState("seeker");
   const [isFocused, setIsFocused] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState("");
+  const { login, register } = useAuth();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -31,6 +38,21 @@ export default function Auth() {
     window.location.href = "/"; // Simple redirect for now
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    let result;
+    if (isLogin) {
+      result = await login(email, password);
+    } else {
+      result = await register(name || email.split("@")[0], email, password, activeTab);
+    }
+    
+    if (!result.success) {
+      setError(result.error || "Authentication failed");
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden"
@@ -48,9 +70,6 @@ export default function Auth() {
         </div>
         <div className="flex gap-8 text-tertiary/60">
           <span className="hover:text-tertiary cursor-pointer transition">
-            JOIN
-          </span>
-          <span className="hover:text-tertiary cursor-pointer transition">
             EXPLORE
           </span>
           <span className="text-primary cursor-pointer transition border-b border-primary pb-1">
@@ -59,7 +78,7 @@ export default function Auth() {
         </div>
       </div>
 
-      <div className="flex w-full max-w-[1000px] h-[600px] glass-card overflow-hidden z-10">
+      <div className="flex w-full max-w-[1000px] h-[600px] glass-card z-10">
         {/* Left Side: Value Prop */}
         <div className="flex-1 relative p-12 flex flex-col justify-center bg-gradient-to-br from-surface to-background border-r border-white/5">
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none" />
@@ -86,15 +105,17 @@ export default function Auth() {
 
         {/* Right Side: Form */}
         <div className="flex-[1.2] p-12 flex flex-col justify-center bg-surface relative">
-          <h2 className="font-heading text-3xl mb-2 stagger-item">
-            Welcome Back
+          <h2 className="font-heading text-3xl mt-6 stagger-item">
+            {isLogin ? "Welcome Back" : "Create Account"}
           </h2>
-          <p className="text-tertiary/50 text-sm mb-8 stagger-item">
-            Configure your access parameters below.
+          <p className="text-tertiary/50 text-sm mb-4 stagger-item">
+            {isLogin ? "Configure your access parameters below." : "Initialize your new profile parameters."}
           </p>
+          
+          {error && <div className="text-red-400 text-xs mb-2 stagger-item">{error}</div>}
 
           {/* Toggle */}
-          <div className="flex bg-background rounded-lg p-1 mb-8 stagger-item border border-white/5">
+          <div className="flex bg-background rounded-lg p-1 mb-4 stagger-item border border-white/5">
             <button
               className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${activeTab === "seeker" ? "bg-surface text-primary shadow-sm border border-white/5" : "text-tertiary/50 hover:text-tertiary"}`}
               onClick={() => setActiveTab("seeker")}
@@ -109,13 +130,29 @@ export default function Auth() {
             </button>
           </div>
 
-          <div className="space-y-6 stagger-item">
+          <form onSubmit={handleSubmit} className="space-y-6 stagger-item">
+            {!isLogin && (
+              <div>
+                <label className="block text-sm font-label mb-0 text-tertiary/80">
+                  Alias / Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your dev alias"
+                  className="w-full bg-transparent border-b border-white/10 py-2 text-tertiary focus:outline-none focus:border-primary transition-all placeholder:text-tertiary/30"
+                />
+              </div>
+            )}
             <div>
-              <label className="block text-sm font-label mb-2 text-tertiary/80">
+              <label className="block text-sm font-label mb-0 text-tertiary/80">
                 Identity Identifier
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@devresilience.com"
                 className={`w-full bg-transparent border-b ${isFocused ? "border-primary shadow-[0_1px_10px_-2px_rgba(34,211,238,0.3)]" : "border-white/10"} py-2 text-tertiary focus:outline-none transition-all placeholder:text-tertiary/30`}
                 onFocus={() => setIsFocused(true)}
@@ -124,22 +161,26 @@ export default function Auth() {
             </div>
 
             <div>
-              <div className="flex justify-between items-end mb-2">
+              <div className="flex justify-between items-end mb-0">
                 <label className="block text-sm font-label text-tertiary/80">
                   Security Key
                 </label>
-                <span className="text-[10px] text-tertiary/40 uppercase tracking-wider cursor-pointer hover:text-primary transition">
-                  Forgot Password?
-                </span>
+                {isLogin && (
+                  <span className="text-[10px] text-tertiary/40 uppercase tracking-wider cursor-pointer hover:text-primary transition">
+                    Forgot Password?
+                  </span>
+                )}
               </div>
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="w-full bg-transparent border-b border-white/10 py-2 text-tertiary focus:outline-none focus:border-primary transition-all placeholder:text-tertiary/30"
               />
             </div>
 
-            <div className="flex items-center gap-2 pt-2">
+            <div className="flex items-center gap-2 ">
               <input
                 type="checkbox"
                 id="persistent"
@@ -152,30 +193,39 @@ export default function Auth() {
                 Persistent Session
               </label>
             </div>
-          </div>
 
-          <div className="mt-8 space-y-4 stagger-item">
-            <button className="w-full py-3 bg-gradient-to-r from-primary to-[#06b6d4] text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center gap-2">
-              Initialize Session
-              <span className="text-lg leading-none">→</span>
-            </button>
-            <button
-              onClick={handleGuestEntry}
-              className="w-full py-3 bg-transparent border border-white/10 text-tertiary font-medium rounded-lg hover:bg-white/5 transition-all"
-            >
-              Continue as Guest
-            </button>
-          </div>
+            <div className="mt-4 space-y-4 stagger-item">
+              <button type="submit" onClick={handleSubmit} className="w-full py-3 bg-gradient-to-r from-primary to-[#06b6d4] text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all flex items-center justify-center gap-2">
+                {isLogin ? "Initialize Session" : "Create Profile"}
+                <span className="text-lg leading-none">→</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsLogin(!isLogin);
+                }}
+                className="w-full py-3 bg-transparent border border-white/10 text-tertiary font-medium rounded-lg hover:bg-white/5 transition-all"
+              >
+                {isLogin ? "Need an account? Register" : "Already have an account? Login"}
+              </button>
+              <button
+                onClick={handleGuestEntry}
+                className="w-full py-3 bg-transparent text-tertiary/50 font-medium hover:text-tertiary transition-all"
+              >
+                Continue as Guest
+              </button>
+            </div>
+          </form>
 
-          <div className="mt-8 flex items-center gap-4 stagger-item">
+          {/* <div className="mt-4 flex items-center gap-4 stagger-item">
             <div className="flex-1 h-[1px] bg-white/5"></div>
             <span className="text-[10px] text-tertiary/40 uppercase tracking-widest">
               Or Register Via
             </span>
             <div className="flex-1 h-[1px] bg-white/5"></div>
-          </div>
+          </div> */}
 
-          <div className="mt-6 flex gap-4 stagger-item">
+          {/* <div className="mt-2 flex gap-4 stagger-item">
             <button className="flex-1 py-3 border border-white/5 rounded-lg flex items-center justify-center gap-2 hover:bg-white/5 transition text-xs font-label text-tertiary/60">
               <div className="w-4 h-4 bg-tertiary/80 mask-network"></div>{" "}
               Network
@@ -184,7 +234,7 @@ export default function Auth() {
               <div className="w-4 h-4 bg-tertiary/80 mask-terminal"></div>{" "}
               Terminal
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -204,5 +254,5 @@ export default function Auth() {
         </div>
       </div>
     </div>
-  );
+            );
 }

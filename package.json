@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install:all": "npm install && cd backend && npm install",
+    "build:all": "npm run build",
+    "start": "cd backend && npm start"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
@@ -18,6 +21,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.2",
+    "recharts": "^3.8.1",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {

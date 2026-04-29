@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import PageTransition from "./PageTransition";
 import { Search, Bell, User } from "lucide-react";
@@ -12,12 +12,17 @@ export default function AppLayout() {
         <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 z-10 glass sticky top-0">
           <div className="flex items-center gap-6 text-sm text-tertiary/60 font-medium">
             <span className="text-tertiary">Dashboard</span>
-            <span className="hover:text-tertiary cursor-pointer transition-colors">
-              Stories
-            </span>
-            <span className="hover:text-tertiary cursor-pointer transition-colors">
-              Network
-            </span>
+            <NavLink to="/dashboard/stories">
+              {" "}
+              <span className="hover:text-tertiary cursor-pointer transition-colors">
+                Stories
+              </span>{" "}
+            </NavLink>
+            <NavLink to="/dashboard/network">
+              <span className="hover:text-tertiary cursor-pointer transition-colors">
+                Network
+              </span>
+            </NavLink>
           </div>
 
           <div className="flex items-center gap-6">
@@ -33,7 +38,9 @@ export default function AppLayout() {
               <Bell className="w-5 h-5" />
             </button>
             <div className="w-8 h-8 rounded-full bg-surface-hover border border-white/10 flex items-center justify-center cursor-pointer">
-              <User className="w-4 h-4 text-tertiary/80" />
+              <NavLink to="/auth">
+                <User className="w-4 h-4 text-tertiary/80" />
+              </NavLink>
             </div>
           </div>
         </header>

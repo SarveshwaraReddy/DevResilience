@@ -2,10 +2,17 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { io } from "socket.io-client";
+import { useAuth } from "../context/AuthContext";
+import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { NavLink } from "react-router-dom";
 
 export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [matchFound, setMatchFound] = useState(false);
+  const [weather, setWeather] = useState(null);
+  const [heatmap, setHeatmap] = useState([]);
+  const [storyPoints, setStoryPoints] = useState([0, 0, 0, 0, 0, 0, 0]);
+  const { token, user } = useAuth();
 
   useEffect(() => {
     let ctx;
@@ -24,6 +31,50 @@ export default function Dashboard() {
     return () => ctx && ctx.revert();
   }, [isSearching]);
 
+  useEffect(() => {
+    if (!token) return;
+
+    // Fetch Weather Context
+    fetch('/api/v1/insights/weather-context', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setWeather(data.data);
+      });
+
+    // Fetch Heatmap (still fetching but we don't use it for the graph anymore)
+    fetch('/api/v1/insights/heatmap', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) setHeatmap(data.data);
+      });
+  }, [token]);
+
+  useEffect(() => {
+    if (!token || !user) return;
+
+    // Fetch Stories for Graph
+    fetch('/api/v1/stories', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const myStories = data.data.filter(s => s.author?._id === user._id || s.author === user._id);
+          const counts = [0, 0, 0, 0, 0, 0, 0];
+          myStories.forEach(story => {
+            const d = new Date(story.createdAt).getDay();
+            const mappedDay = d === 0 ? 6 : d - 1; // 0=Mon, 6=Sun
+            counts[mappedDay] += 1;
+          });
+          setStoryPoints(counts);
+        }
+      });
+  }, [token, user]);
+
   const handleStartSession = () => {
     setIsSearching(true);
 
@@ -37,6 +88,12 @@ export default function Dashboard() {
       }, 2000);
     }, 3000);
   };
+
+  let cumulative = 0;
+  const chartData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((name, i) => {
+    cumulative += storyPoints[i] * 10;
+    return { name, score: cumulative };
+  });
 
   return (
     <div className="space-y-6">
@@ -54,8 +111,7 @@ export default function Dashboard() {
               Peer
             </h1>
             <p className="text-tertiary/60 mb-8 max-w-md text-sm">
-              Overcome burnout with 1-on-1 peer sessions designed for engineers
-              by engineers.
+              {weather ? weather.recommendation : "Overcome burnout with 1-on-1 peer sessions designed for engineers by engineers."}
             </p>
 
             <div className="flex items-center gap-6">
@@ -192,33 +248,38 @@ export default function Dashboard() {
       {/* Bento Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Chart Card */}
-        <div className="md:col-span-2 glass-card p-6">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="font-bold text-lg">My Journey</h3>
-            <span className="text-xs text-primary font-label">
-              88% Resilience Score
-            </span>
+        {user ? (
+          <div className="md:col-span-2 glass-card p-6">
+            <div className="flex justify-between items-center mb-8">
+              <h3 className="font-bold text-lg">{user.name}'s Journey</h3>
+              <span className="text-xs text-primary font-label">
+                {user?.productivityMetrics?.currentResilienceScore || 88}% Resilience Score
+              </span>
+            </div>
+            <div className="h-40 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                    itemStyle={{ color: '#22d3ee' }}
+                  />
+                  <Line type="monotone" dataKey="score" stroke="#22d3ee" strokeWidth={3} dot={{ fill: '#22d3ee', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-          <div className="h-40 flex items-end justify-between gap-2">
-            {[40, 60, 50, 80, 70, 90, 100].map((h, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                <div
-                  className={`w-full rounded-t-sm transition-all duration-1000 ${i === 6 ? "bg-primary shadow-[0_0_15px_rgba(34,211,238,0.4)]" : "bg-primary/20"}`}
-                  style={{ height: `${h}%` }}
-                />
-                <span className="text-[10px] text-tertiary/30 uppercase">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i]}
-                </span>
-              </div>
-            ))}
+        ) : (
+          <div className="md:col-span-2 glass-card p-6 flex items-center justify-center text-tertiary/50">
+            Log in to see your journey graph
           </div>
-        </div>
+        )}
 
         {/* Featured Story */}
         <div className="glass-card relative overflow-hidden group cursor-pointer">
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
           <img
-            src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop"
+            src="/office.png"
             className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-105 transition-transform duration-700"
             alt="Office Building"
           />
@@ -262,7 +323,7 @@ export default function Dashboard() {
 
         <div className="md:col-span-2 glass-card p-6 flex items-center gap-6 group cursor-pointer hover:border-white/10 transition-colors">
           <img
-            src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?q=80&w=2070&auto=format&fit=crop"
+            src="/desk.png"
             className="w-32 h-32 rounded-xl object-cover"
             alt="Desk"
           />
@@ -270,9 +331,9 @@ export default function Dashboard() {
             <span className="text-[10px] font-label text-tertiary/50 uppercase tracking-widest block mb-2">
               Relatable Stories
             </span>
-            <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+            <NavLink to="stories"><h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
               Why 'Deep Work' requires deep rest
-            </h3>
+            </h3></NavLink>
             <p className="text-xs text-tertiary/60 italic">
               "My productivity tripled when I started taking mandatory walk
               breaks..."
@@ -282,9 +343,9 @@ export default function Dashboard() {
 
         <div className="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden group">
           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <span className="font-heading text-5xl font-bold mb-2">24</span>
+          <span className="font-heading text-5xl font-bold mb-2">{user?.productivityMetrics?.totalFocusSessions || 24}</span>
           <span className="text-[10px] font-label text-primary uppercase tracking-widest border-b-2 border-primary pb-1">
-            Days Clean From Overtime
+            Total Focus Sessions
           </span>
         </div>
       </div>

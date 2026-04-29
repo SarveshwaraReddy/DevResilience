@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { io } from "socket.io-client";
+import { useAuth } from "../context/AuthContext";
 
 export default function Room() {
+  const { user } = useAuth();
+  const socketRef = useRef(null);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -32,6 +36,32 @@ export default function Room() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Connect to Socket.io backend
+  useEffect(() => {
+    socketRef.current = io(); // Connects using the vite proxy
+
+    if (user && user._id) {
+      socketRef.current.emit('join_user_room', user._id);
+    }
+
+    socketRef.current.on('session_synced', (data) => {
+      console.log('Real-time sync received:', data);
+      // Here you would update UI states, timers, or chat based on remote events
+      if (data.action === 'finish') {
+        setMessages(prev => [...prev, {
+          id: Date.now(),
+          sender: "system",
+          text: `A connected session has been marked as complete.`,
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        }]);
+      }
+    });
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, [user]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -131,7 +161,7 @@ export default function Room() {
               )}
 
               <img
-                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+                src="/avatar.png"
                 alt="Facilitator"
                 className="w-[180px] h-[180px] rounded-full object-cover z-10 bg-surface-hover"
               />
