@@ -39,7 +39,7 @@ export default function Room() {
 
   // Connect to Socket.io backend
   useEffect(() => {
-    socketRef.current = io(); // Connects using the vite proxy
+    socketRef.current = io(import.meta.env.VITE_BACKEND_URL || '/'); // Connects using the vite proxy
 
     if (user && user._id) {
       socketRef.current.emit('join_user_room', user._id);
