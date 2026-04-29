@@ -1,0 +1,12 @@
+{
+  "name": "devresilience-root",
+  "version": "1.0.0",
+  "description": "Root package for managing frontend and backend",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build:all": "cd frontend && npm run build",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  }
+}

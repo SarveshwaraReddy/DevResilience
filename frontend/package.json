@@ -8,9 +8,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "install:all": "npm install && cd backend && npm install",
+    "install:all": "npm install && cd ../backend && npm install",
     "build:all": "npm run build",
-    "start": "cd backend && npm start"
+    "start": "cd ../backend && npm start"
   },
   "dependencies": {
     "canvas-confetti": "^1.9.4",
