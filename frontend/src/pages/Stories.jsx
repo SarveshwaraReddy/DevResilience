@@ -1,11 +1,24 @@
+/*
+ * Stories Page
+ * - Renders the stories list, story detail view, and story creation flow
+ * - Uses GSAP + ScrollTrigger to animate story cards
+ * - Communicates with backend APIs for stories and comments
+ *
+ * Notes:
+ * - This page includes a `fallbackStories` list so the UI remains usable while the API
+ *   is unavailable (e.g., during local development or authentication failures).
+ */
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, Heart } from "lucide-react";
 
+// Register GSAP plugins once at module level.
 gsap.registerPlugin(ScrollTrigger);
 
+// Local fallback content used when the API request fails.
 const fallbackStories = [
+
   {
     _id: "1",
     category: "CAREER",
@@ -31,12 +44,24 @@ export default function Stories() {
   const [stories, setStories] = useState(fallbackStories);
   const [isWriting, setIsWriting] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [currentUserId, setCurrentUserId] = useState(null);
   
   // Form State
   const [formData, setFormData] = useState({ title: '', category: 'CAREER', excerpt: '', content: '' });
 
   useEffect(() => {
     fetchStories();
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUserId(payload.id || payload.userId || payload._id);
+      } catch (e) {
+        // Ignore parsing errors
+      }
+    }
   }, []);
 
   const fetchStories = async () => {
@@ -46,13 +71,78 @@ export default function Stories() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
-      if (data.success && data.data.length > 0) {
+
+      // Backend may return an empty array when the DB is empty.
+      // Only replace local fallback stories when the API provides data.
+      if (data?.success && Array.isArray(data?.data) && data.data.length > 0) {
         setStories(data.data);
       }
+
     } catch (err) {
       console.log('Using fallback stories, API not ready or logged out.');
     }
   };
+
+  const fetchComments = async (storyId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/comments/${storyId}/comments`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setComments(data.data);
+      }
+    } catch (err) {
+      console.log('Error fetching comments');
+    }
+  };
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/comments/${selectedStory._id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ text: newComment })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setComments([data.data, ...comments]);
+        setNewComment('');
+      }
+    } catch (err) {
+      console.log('Error adding comment');
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) {
+      return;
+    }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setComments(comments.filter(c => c._id !== commentId));
+      } else {
+        alert(data.message || 'Failed to delete comment');
+      }
+    } catch (err) {
+      console.log('Error deleting comment:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedStory) {
+      fetchComments(selectedStory._id);
+    }
+  }, [selectedStory]);
 
   useEffect(() => {
     if (!isWriting && !selectedStory) {
@@ -127,7 +217,42 @@ export default function Stories() {
     }
   };
 
+  const handleLike = async (storyId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories/${storyId}/like`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Update the story likes count
+        setStories(stories.map(s => s._id === storyId ? { ...s, likesCount: data.likes, likes: [...(s.likes || []), currentUserId] } : s));
+        if (selectedStory && selectedStory._id === storyId) {
+          setSelectedStory({ ...selectedStory, likesCount: data.likes, likes: [...(selectedStory.likes || []), currentUserId] });
+        }
+      } else if (data.message === 'Already liked') {
+        // Unlike
+        const unlikeRes = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories/${storyId}/unlike`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const unlikeData = await unlikeRes.json();
+        if (unlikeData.success) {
+          setStories(stories.map(s => s._id === storyId ? { ...s, likesCount: unlikeData.likes, likes: (s.likes || []).filter(id => id !== currentUserId) } : s));
+          if (selectedStory && selectedStory._id === storyId) {
+            setSelectedStory({ ...selectedStory, likesCount: unlikeData.likes, likes: (selectedStory.likes || []).filter(id => id !== currentUserId) });
+          }
+        }
+      }
+    } catch (err) {
+      console.log('Error liking story');
+    }
+  };
+
   if (selectedStory) {
+    const isLiked = currentUserId && selectedStory.likes?.includes(currentUserId);
+    
     return (
       <div className="pb-12 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         <button 
@@ -142,18 +267,60 @@ export default function Stories() {
             <span className="text-xs font-label uppercase tracking-widest text-primary border border-primary/30 px-3 py-1 rounded-full">
               {selectedStory.category}
             </span>
-            <button
-              onClick={() => handleDeleteStory(selectedStory._id)}
-              className="text-tertiary/60 hover:text-red-400 transition-colors p-2 hover:bg-white/5 rounded-lg"
-              title="Delete story"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button onClick={() => handleLike(selectedStory._id)} className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 p-2 hover:bg-white/5 rounded-lg">
+                <Heart className={`w-5 h-5 ${isLiked ? 'fill-red-400 text-red-400' : ''}`} />
+                <span className="text-sm">{selectedStory.likesCount || 0}</span>
+              </button>
+              <button
+                onClick={() => handleDeleteStory(selectedStory._id)}
+                className="text-tertiary/60 hover:text-red-400 transition-colors p-2 hover:bg-white/5 rounded-lg"
+                title="Delete story"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
           </div>
           <h1 className="font-heading text-4xl mt-6 mb-4">{selectedStory.title}</h1>
           <p className="text-sm text-tertiary/50 mb-8">By {selectedStory.author?.name || 'Anonymous'}</p>
           <div className="prose prose-invert max-w-none text-tertiary/80 leading-relaxed whitespace-pre-wrap">
             {selectedStory.content || selectedStory.excerpt}
+          </div>
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-white/10">
+          <h3 className="font-heading text-2xl mb-6">Comments ({comments.length})</h3>
+          <form onSubmit={handleAddComment} className="mb-8">
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Share your thoughts..."
+              className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary/50 resize-none"
+              rows="3"
+              required
+            />
+            <button type="submit" className="mt-4 bg-primary text-background font-bold py-2 px-4 rounded-lg">
+              Add Comment
+            </button>
+          </form>
+          <div className="space-y-4">
+            {comments.map((comment) => (
+              <div key={comment._id} className="bg-white/5 p-4 rounded-lg relative group">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-tertiary/80">{comment.text}</p>
+                    <p className="text-xs text-tertiary/50 mt-2">By {comment.author?.name || 'Anonymous'} • {new Date(comment.createdAt).toLocaleDateString()}</p>
+                  </div>
+                  <button
+                    onClick={() => handleDeleteComment(comment._id)}
+                    className="text-tertiary/40 hover:text-red-400 transition-colors p-2 hover:bg-white/5 rounded-lg opacity-0 group-hover:opacity-100"
+                    title="Delete comment"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -225,7 +392,10 @@ export default function Stories() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {stories.map((story) => (
+        {stories.map((story) => {
+          const isLiked = currentUserId && story.likes?.includes(currentUserId);
+          
+          return (
           <div key={story._id || story.id} className="story-card glass-card p-8 flex flex-col h-[380px] group hover:border-white/10 transition-colors relative">
             <div className="flex justify-between items-start mb-6">
               <span className={`text-[10px] font-label uppercase tracking-widest px-3 py-1 rounded-full border border-primary/50 text-primary`}>
@@ -246,12 +416,18 @@ export default function Stories() {
               "{story.excerpt}"
             </p>
             <div className="mt-6 pt-6 border-t border-white/5 flex justify-between items-center">
-              <button onClick={() => setSelectedStory(story)} className="text-primary text-sm font-medium flex items-center gap-2 hover:gap-3 transition-all">
-                Read More <span>→</span>
-              </button>
+              <div className="flex items-center gap-4">
+                <button onClick={() => handleLike(story._id)} className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
+                  <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-400 text-red-400' : ''}`} />
+                  <span className="text-sm">{story.likesCount || 0}</span>
+                </button>
+                <button onClick={() => setSelectedStory(story)} className="text-primary text-sm font-medium flex items-center gap-2 hover:gap-3 transition-all">
+                  Read More <span>→</span>
+                </button>
+              </div>
             </div>
           </div>
-        ))}
+        )})}
 
         <div className="story-card bg-surface border border-primary/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center h-[380px] relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />

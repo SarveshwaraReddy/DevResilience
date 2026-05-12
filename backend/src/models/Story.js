@@ -24,11 +24,15 @@ const storySchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  likes: {
-    type: Number,
-    default: 0
-  }
-}, { timestamps: true });
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
+}, { timestamps: true, toJSON: { virtuals: true } });
+
+storySchema.virtual('likesCount').get(function() {
+  return this.likes ? this.likes.length : 0;
+});
 
 const Story = mongoose.model('Story', storySchema);
 export default Story;

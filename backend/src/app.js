@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 import authRoutes from './routes/authRoutes.js';
 import insightRoutes from './routes/insightRoutes.js';
 import storyRoutes from './routes/storyRoutes.js';
+import commentRoutes from './routes/commentRoutes.js';
 
 const app = express();
 
@@ -31,6 +32,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/insights', insightRoutes);
 app.use('/api/v1/stories', storyRoutes);
+app.use('/api/v1/comments', commentRoutes);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
