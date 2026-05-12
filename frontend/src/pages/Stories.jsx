@@ -16,32 +16,9 @@ import { X, Trash2, Heart } from "lucide-react";
 // Register GSAP plugins once at module level.
 gsap.registerPlugin(ScrollTrigger);
 
-// Local fallback content used when the API request fails.
-const fallbackStories = [
-
-  {
-    _id: "1",
-    category: "CAREER",
-    title: "Surviving the 24-year-old Slump",
-    excerpt: "Three years in, the imposter syndrome didn't go away...",
-    content: "Three years in, the imposter syndrome didn't go away—it evolved. I felt like I was drowning in legacy code and lost my spark. Here is how I reclaimed my curiosity. I started by taking small breaks, and focusing on one tiny win a day. Eventually, the mountain looked like a staircase again.",
-    color: "primary",
-    author: { name: "Alex Developer" }
-  },
-  {
-    _id: "2",
-    category: "MENTAL HEALTH",
-    title: "Finding Balance in Tech",
-    excerpt: "The burnout wasn't a sudden crash; it was a slow leak...",
-    content: "The burnout wasn't a sudden crash; it was a slow leak. I had to learn that my worth wasn't tied to my PR throughput or my green GitHub squares. Stepping away from the keyboard and picking up a physical hobby—woodworking—changed how my brain processed problem-solving.",
-    color: "secondary",
-    author: { name: "Sam Coder" }
-  }
-];
-
 export default function Stories() {
   const containerRef = useRef(null);
-  const [stories, setStories] = useState(fallbackStories);
+  const [stories, setStories] = useState([]);
   const [isWriting, setIsWriting] = useState(false);
   const [selectedStory, setSelectedStory] = useState(null);
   const [comments, setComments] = useState([]);
@@ -72,14 +49,13 @@ export default function Stories() {
       });
       const data = await res.json();
 
-      // Backend may return an empty array when the DB is empty.
-      // Only replace local fallback stories when the API provides data.
-      if (data?.success && Array.isArray(data?.data) && data.data.length > 0) {
+      // Set stories from the API unconditionally if successful
+      if (data?.success && Array.isArray(data?.data)) {
         setStories(data.data);
       }
 
     } catch (err) {
-      console.log('Using fallback stories, API not ready or logged out.');
+      console.log('Error fetching stories:', err);
     }
   };
 
@@ -180,11 +156,8 @@ export default function Stories() {
         alert("Make sure you are logged in to submit a story to the database.");
       }
     } catch (err) {
-      // Fallback local update
-      const newStory = { ...formData, _id: Date.now().toString(), color: 'primary', author: { name: 'You' } };
-      setStories([newStory, ...stories]);
-      setIsWriting(false);
-      setFormData({ title: '', category: 'CAREER', excerpt: '', content: '' });
+      console.log('Error submitting story:', err);
+      alert('Failed to submit story. Please try again.');
     }
   };
 
@@ -209,11 +182,7 @@ export default function Stories() {
       }
     } catch (err) {
       console.log('Error deleting story:', err);
-      // Fallback local delete
-      setStories(stories.filter(s => s._id !== storyId));
-      if (selectedStory?._id === storyId) {
-        setSelectedStory(null);
-      }
+      alert('Failed to delete story. Please try again.');
     }
   };
 

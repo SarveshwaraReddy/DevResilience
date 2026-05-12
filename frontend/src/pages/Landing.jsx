@@ -104,29 +104,33 @@ export default function Landing() {
       icon: Book,
       title: "Resilience Stories",
       description:
-        "Read real accounts of engineers navigating challenges, burnout, and growth. Share your own story to inspire others.",
+        "Working 100% right now! Read real accounts of engineers, share your own story, drop comments, and like posts. Built securely with real-time updates.",
       color: "primary",
+      status: "Live Now",
     },
     {
       icon: Users,
       title: "Find Mentors",
       description:
-        "Connect with experienced professionals who have walked the same path. Get guidance tailored to your journey.",
+        "Upcoming Feature: Connect with experienced professionals who have walked the same path. Get guidance tailored to your unique journey.",
       color: "secondary",
+      status: "Upcoming",
     },
     {
       icon: MessageCircle,
-      title: "Support Room",
+      title: "WarRoom Support",
       description:
-        "Join anonymous peer support sessions. A safe space to express, listen, and grow together.",
+        "Upcoming Feature: Join anonymous peer support sessions. A secure, real-time safe space to express, listen, and grow together.",
       color: "primary",
+      status: "Upcoming",
     },
     {
       icon: TrendingUp,
-      title: "Network",
+      title: "AI Insights Dashboard",
       description:
-        "Build meaningful connections with engineers across the industry. Collaborate, learn, and support each other.",
+        "Upcoming Feature: Get data-driven resilience tracking and personal growth analytics derived directly from your stories and community interactions.",
       color: "secondary",
+      status: "Upcoming",
     },
   ];
 
@@ -237,8 +241,11 @@ export default function Landing() {
                 <div className={`w-12 h-12 rounded-xl bg-${feature.color}/20 flex items-center justify-center text-${feature.color} mb-6 group-hover:scale-110 transition-transform`}>
                   <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="font-heading text-2xl mb-3 group-hover:text-primary transition-colors">
+                <h3 className="font-heading text-2xl mb-3 group-hover:text-primary transition-colors flex items-center flex-wrap gap-3">
                   {feature.title}
+                  <span className={`text-[10px] font-label uppercase tracking-widest px-2 py-0.5 rounded-full border ${feature.status === 'Live Now' ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-tertiary/30 text-tertiary/60 bg-white/5'}`}>
+                    {feature.status}
+                  </span>
                 </h3>
                 <p className="text-tertiary/70 leading-relaxed">{feature.description}</p>
                 <div className="mt-6 flex items-center gap-2 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
