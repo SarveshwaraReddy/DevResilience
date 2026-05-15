@@ -10,7 +10,15 @@ import Network from "./pages/Network";
 import Mentors from "./pages/Mentors";
 import Landing from "./pages/Landing";
 import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "./index.css";
+
+const DummyPage = ({ title }) => (
+  <div className="p-8 text-tertiary">
+    <h1 className="text-2xl font-heading mb-4">{title}</h1>
+    <p className="text-tertiary/60">This feature is under development.</p>
+  </div>
+);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -19,12 +27,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Routes>
           <Route path="/auth" element={<Auth />} />
           <Route path="/" element={<Landing />} />
-          <Route path="/dashboard" element={<AppLayout />}>
+          <Route path="/dashboard" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
             <Route index element={<Dashboard />} />
             <Route path="stories" element={<Stories />} />
             <Route path="network" element={<Network />} />
             <Route path="mentors" element={<Mentors />} />
             <Route path="room" element={<SupportRoom />} />
+            <Route path="profile" element={<DummyPage title="Profile" />} />
+            <Route path="notifications" element={<DummyPage title="Notifications" />} />
+            <Route path="ai-tools" element={<DummyPage title="AI Tools Dashboard" />} />
           </Route>
         </Routes>
       </AuthProvider>

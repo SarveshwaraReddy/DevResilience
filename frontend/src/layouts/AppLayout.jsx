@@ -34,14 +34,12 @@ export default function AppLayout() {
                 className="bg-surface border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors w-64 placeholder:text-tertiary/30"
               />
             </div>
-            <button className="text-tertiary/60 hover:text-tertiary transition-colors">
+            <NavLink to="/dashboard/notifications" className="text-tertiary/60 hover:text-tertiary transition-colors">
               <Bell className="w-5 h-5" />
-            </button>
-            <div className="w-8 h-8 rounded-full bg-surface-hover border border-white/10 flex items-center justify-center cursor-pointer">
-              <NavLink to="/auth">
-                <User className="w-4 h-4 text-tertiary/80" />
-              </NavLink>
-            </div>
+            </NavLink>
+            <NavLink to="/dashboard/profile" className="w-8 h-8 rounded-full bg-surface-hover border border-white/10 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50">
+              <User className="w-4 h-4 text-tertiary/80" />
+            </NavLink>
           </div>
         </header>
 

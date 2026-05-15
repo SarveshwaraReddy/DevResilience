@@ -1,16 +1,21 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Users, MessageSquare } from "lucide-react";
+import { Home, BookOpen, Users, MessageSquare, Bell, User, Cpu, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
+import { useAuth } from "../context/AuthContext";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Stories", href: "/dashboard/stories", icon: BookOpen },
+  { name: "Feed", href: "/dashboard/stories", icon: BookOpen },
+  { name: "Messages", href: "/dashboard/mentors", icon: MessageSquare },
   { name: "Network", href: "/dashboard/network", icon: Users },
-  { name: "Mentors", href: "/dashboard/mentors", icon: MessageSquare },
+  { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
+  { name: "Profile", href: "/dashboard/profile", icon: User },
+  { name: "AI Tools", href: "/dashboard/ai-tools", icon: Cpu },
 ];
 
 export default function Sidebar() {
   const location = useLocation();
+  const { logout } = useAuth();
 
   return (
     <div className="w-64 glass border-r border-white/5 h-screen sticky top-0 flex flex-col pt-8 pb-4">
@@ -62,13 +67,20 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="px-4 mt-auto">
+      <div className="px-4 mt-auto space-y-4">
         <div className="glass-card p-4 flex flex-col gap-3">
           <span className="text-xs text-tertiary/60">Need help now?</span>
           <button className="w-full py-2 bg-red-600/20 hover:bg-red-600/30 text-red-500 border border-red-500/50 rounded-lg text-sm font-medium transition-all hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]">
             Crisis Resources
           </button>
         </div>
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-4 py-3 text-tertiary/60 hover:text-tertiary hover:bg-white/5 rounded-xl transition-all duration-300"
+        >
+          <LogOut className="w-5 h-5" />
+          <span className="font-label text-sm font-medium">Logout</span>
+        </button>
       </div>
     </div>
   );

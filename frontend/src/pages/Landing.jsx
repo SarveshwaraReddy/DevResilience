@@ -165,12 +165,33 @@ export default function Landing() {
             <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-secondary" />
             DevResilience
           </div>
-          <button
-            onClick={handleGetStarted}
-            className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all text-sm"
-          >
-            {token ? "Dashboard" : "Get Started"}
-          </button>
+          
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-tertiary/70">
+            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>Home</span>
+            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => document.getElementById('features')?.scrollIntoView({behavior: 'smooth'})}>Features</span>
+            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => document.getElementById('about')?.scrollIntoView({behavior: 'smooth'})}>About</span>
+          </nav>
+
+          <div className="flex items-center gap-4">
+            {!token ? (
+              <>
+                <button onClick={() => navigate('/auth')} className="hidden sm:block text-sm font-medium text-tertiary/70 hover:text-primary transition-colors">Login</button>
+                <button
+                  onClick={() => navigate('/auth')}
+                  className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all text-sm"
+                >
+                  Register
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/dashboard')}
+                className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all text-sm"
+              >
+                Dashboard
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
@@ -222,7 +243,7 @@ export default function Landing() {
       </section>
 
       {/* Features Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+      <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
           <h2 className="font-heading text-4xl md:text-5xl mb-4">Platform Features</h2>
           <p className="text-tertiary/60 max-w-2xl mx-auto">
@@ -258,7 +279,7 @@ export default function Landing() {
       </section>
 
       {/* Benefits Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+      <section id="about" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
           <h2 className="font-heading text-4xl md:text-5xl mb-4">Why Join DevResilience?</h2>
           <p className="text-tertiary/60 max-w-2xl mx-auto">
