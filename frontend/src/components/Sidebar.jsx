@@ -1,8 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Users, MessageSquare, Bell, User, Cpu, LogOut } from "lucide-react";
+import {
+  Home,
+  BookOpen,
+  Users,
+  MessageSquare,
+  Bell,
+  User,
+  Cpu,
+  LogOut,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
-
+import { NavLink } from "react-router-dom";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Feed", href: "/dashboard/stories", icon: BookOpen },
@@ -23,9 +32,11 @@ export default function Sidebar() {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary" />
           <div className="flex flex-col">
-            <span className="font-heading font-bold text-primary tracking-wide text-lg leading-none">
-              DevResilience
-            </span>
+            <NavLink to='/'>
+              <span className="font-heading font-bold text-primary tracking-wide text-lg leading-none">
+                DevResilience
+              </span>
+            </NavLink>
             <span className="text-[10px] text-tertiary/50 uppercase tracking-widest mt-1">
               Peer Support Network
             </span>

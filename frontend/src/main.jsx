@@ -38,7 +38,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <Route path="stories" element={<Stories />} />
             <Route path="network" element={<Network />} />
             <Route path="messages" element={<DummyPage title="Messages" />} />
-            <Route path="room" element={<SupportRoom />} />
+            <Route path="room/:roomId" element={<SupportRoom />} />
             <Route path="profile" element={<DummyPage title="Profile" />} />
             <Route
               path="notifications"

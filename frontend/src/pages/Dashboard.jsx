@@ -1,19 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { io } from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import Avatar from "../components/avatar/Avatar";
 
 export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
   const [matchFound, setMatchFound] = useState(false);
+  const [roleSearching, setRoleSearching] = useState(null);
   const [weather, setWeather] = useState(null);
   const [heatmap, setHeatmap] = useState([]);
   const [storyPoints, setStoryPoints] = useState([0, 0, 0, 0, 0, 0, 0]);
   const { token, user } = useAuth();
+  const navigate = useNavigate();
+  const socketRef = useRef(null);
 
   useEffect(() => {
     let ctx;
@@ -31,6 +34,25 @@ export default function Dashboard() {
     }
     return () => ctx && ctx.revert();
   }, [isSearching]);
+
+  useEffect(() => {
+    if (token) {
+      socketRef.current = io(import.meta.env.VITE_BACKEND_URL || '/');
+      
+      socketRef.current.on('support_match_found', (data) => {
+        setMatchFound(true);
+        sessionStorage.setItem('supportPartner', JSON.stringify(data.partner));
+        sessionStorage.setItem('supportRole', roleSearching);
+        setTimeout(() => {
+          navigate(`/dashboard/room/${data.roomId}`);
+        }, 1500);
+      });
+
+      return () => {
+        if (socketRef.current) socketRef.current.disconnect();
+      };
+    }
+  }, [token, roleSearching, navigate]);
 
   useEffect(() => {
     if (!token) return;
@@ -77,17 +99,21 @@ export default function Dashboard() {
   }, [token, user]);
 
   const handleStartSession = () => {
+    if (!user) return alert("Please log in to start a session");
     setIsSearching(true);
+    setRoleSearching('seeker');
+    if (socketRef.current) {
+      socketRef.current.emit('join_support_queue', { role: 'seeker', user: { _id: user._id, name: user.name, avatar: user.avatar } });
+    }
+  };
 
-    // Simulate finding a match after 3 seconds
-    setTimeout(() => {
-      setMatchFound(true);
-
-      // Simulate redirect after showing match overlay
-      setTimeout(() => {
-        window.location.href = "/room";
-      }, 2000);
-    }, 3000);
+  const handleBecomeListener = () => {
+    if (!user) return alert("Please log in to become a listener");
+    setIsSearching(true);
+    setRoleSearching('listener');
+    if (socketRef.current) {
+      socketRef.current.emit('join_support_queue', { role: 'listener', user: { _id: user._id, name: user.name, avatar: user.avatar } });
+    }
   };
 
   let cumulative = 0;
@@ -172,10 +198,10 @@ export default function Dashboard() {
                 </div>
               </div>
               <h3 className="font-heading text-xl text-primary animate-pulse">
-                Scanning Network...
+                {roleSearching === 'listener' ? "Waiting for someone who needs to talk..." : "Scanning Network..."}
               </h3>
               <p className="text-tertiary/50 text-sm mt-2">
-                Looking for an available listener
+                {roleSearching === 'listener' ? "We'll connect you when a peer is ready" : "Looking for an available listener"}
               </p>
             </div>
           )}
@@ -240,8 +266,8 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <button className="w-full py-3 mt-6 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-tertiary/80">
-            Learn More
+          <button onClick={handleBecomeListener} disabled={isSearching} className="w-full py-3 mt-6 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-tertiary/80 disabled:opacity-50 disabled:cursor-not-allowed">
+            {isSearching && roleSearching === 'listener' ? "Joining Queue..." : "Join as a Listener"}
           </button>
         </div>
       </div>
@@ -277,6 +303,8 @@ export default function Dashboard() {
         )}
 
         {/* Featured Story */}
+        
+
         <div className="glass-card relative overflow-hidden group cursor-pointer">
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
           <img
@@ -289,15 +317,19 @@ export default function Dashboard() {
             <span className="text-[10px] font-label text-primary uppercase border border-primary/30 bg-primary/10 px-2 py-1 rounded w-fit mb-3">
               Burnout Recovery
             </span>
+            <NavLink to='stories'>
             <h3 className="font-bold text-lg mb-2 leading-tight">
               Finding balance after 3 major releases...
             </h3>
+             </NavLink>
             <p className="text-xs text-tertiary/60 line-clamp-2">
               "I thought constant shipping was the only way to prove value until
               I hit the wall at 3AM on a Friday..."
             </p>
           </div>
         </div>
+       
+
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

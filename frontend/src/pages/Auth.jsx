@@ -11,6 +11,7 @@ export default function Auth() {
   const [isFocused, setIsFocused] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
@@ -181,19 +182,28 @@ export default function Auth() {
                 <label className="block text-sm font-label text-tertiary/80">
                   Security Key
                 </label>
-                {isLogin && (
+                {/* {isLogin && (
                   <span className="text-[10px] text-tertiary/40 uppercase tracking-wider cursor-pointer hover:text-primary transition">
                     Forgot Password?
                   </span>
-                )}
+                )} */}
               </div>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-transparent border-b border-white/10 py-2 text-tertiary focus:outline-none focus:border-primary transition-all placeholder:text-tertiary/30"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full bg-transparent border-b border-white/10 py-2 text-tertiary focus:outline-none focus:border-primary transition-all placeholder:text-tertiary/30 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 text-primary transition-colors bg-transparent border-none cursor-pointer p-2"
+                >
+                  {showPassword ? <i class="ri-eye-off-line"></i> : <i class="ri-eye-line"></i>}
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 ">

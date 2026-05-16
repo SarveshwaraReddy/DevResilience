@@ -2,31 +2,27 @@ import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { io } from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
+import { useParams, useNavigate } from "react-router-dom";
+import Avatar from "../components/avatar/Avatar";
 
 export default function Room() {
   const { user } = useAuth();
+  const { roomId } = useParams();
+  const navigate = useNavigate();
   const socketRef = useRef(null);
+  
+  const [partner, setPartner] = useState(() => {
+    const p = sessionStorage.getItem('supportPartner');
+    return p ? JSON.parse(p) : null;
+  });
+  const [role, setRole] = useState(() => sessionStorage.getItem('supportRole') || 'seeker');
   const [messages, setMessages] = useState([
     {
       id: 1,
       sender: "system",
       text: "Welcome to your Safe Space session. Everything shared here remains private.",
-      time: "10:40 AM",
-    },
-    {
-      id: 2,
-      sender: "Dr. Elena Thorne",
-      role: "Facilitator",
-      text: "Jordan, how are you feeling about the progress we've made this week?",
-      time: "10:42 AM",
-    },
-    {
-      id: 3,
-      sender: "Jordan S.",
-      role: "Participant",
-      text: "It's been challenging, but I'm starting to notice the triggers more clearly now.",
-      time: "10:44 AM",
-    },
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    }
   ]);
   const [newMessage, setNewMessage] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(true);
@@ -39,46 +35,42 @@ export default function Room() {
 
   // Connect to Socket.io backend
   useEffect(() => {
-    socketRef.current = io(import.meta.env.VITE_BACKEND_URL || '/'); // Connects using the vite proxy
-
-    if (user && user._id) {
-      socketRef.current.emit('join_user_room', user._id);
+    if (!roomId) {
+      navigate('/dashboard');
+      return;
     }
 
-    socketRef.current.on('session_synced', (data) => {
-      console.log('Real-time sync received:', data);
-      // Here you would update UI states, timers, or chat based on remote events
-      if (data.action === 'finish') {
-        setMessages(prev => [...prev, {
-          id: Date.now(),
-          sender: "system",
-          text: `A connected session has been marked as complete.`,
-          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-        }]);
-      }
+    socketRef.current = io(import.meta.env.VITE_BACKEND_URL || '/');
+
+    // Join the specific support room
+    socketRef.current.emit('join_support_room', roomId);
+
+    socketRef.current.on('support_message_received', (msg) => {
+      setMessages(prev => [...prev, msg]);
     });
 
     return () => {
       if (socketRef.current) socketRef.current.disconnect();
     };
-  }, [user]);
+  }, [roomId, navigate]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        sender: "Jordan S.",
-        text: newMessage,
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-      },
-    ]);
+    const msg = {
+      id: Date.now(),
+      sender: user?.name || "Anonymous",
+      senderId: user?._id,
+      text: newMessage,
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+    };
+
+    setMessages((prev) => [...prev, msg]);
+    socketRef.current.emit('support_message', { roomId, message: msg });
     setNewMessage("");
   };
 
@@ -138,7 +130,7 @@ export default function Room() {
 
         {/* Avatars Area */}
         <div className="flex-1 flex items-center justify-center gap-16 relative">
-          {/* Facilitator */}
+          {/* Partner */}
           <div className="flex flex-col items-center relative">
             <div
               className={`relative w-48 h-48 rounded-full flex items-center justify-center ${isSpeaking ? "bg-surface shadow-[0_0_30px_rgba(34,211,238,0.2)]" : "bg-surface"}`}
@@ -160,39 +152,45 @@ export default function Room() {
                 />
               )}
 
-              <img
-                src="/avatar.png"
-                alt="Facilitator"
-                className="w-[180px] h-[180px] rounded-full object-cover z-10 bg-surface-hover"
-              />
+              {partner ? (
+                <Avatar seed={partner.avatar?.seed || partner.name} style={partner.avatar?.style || 'lorelei'} size={180} className="rounded-full z-10 bg-surface-hover" />
+              ) : (
+                <div className="w-[180px] h-[180px] rounded-full bg-surface-hover flex items-center justify-center text-5xl font-heading text-tertiary/20 z-10">
+                  ?
+                </div>
+              )}
 
               {/* Badge */}
               <div className="absolute -bottom-4 bg-primary text-background text-[10px] font-bold px-3 py-1 rounded-full border-2 border-background z-20">
-                SPEAKING
+                CONNECTED
               </div>
             </div>
 
             <div className="mt-8 text-center">
               <h3 className="font-heading font-bold text-lg">
-                Dr. Elena Thorne
+                {partner?.name || "Searching..."}
               </h3>
               <span className="text-xs text-tertiary/50 uppercase tracking-widest mt-1 block">
-                Facilitator
+                {role === 'seeker' ? 'Listener' : 'Seeker'}
               </span>
             </div>
           </div>
 
-          {/* Participant */}
+          {/* You */}
           <div className="flex flex-col items-center">
-            <div className="w-48 h-48 rounded-full bg-surface border border-white/5 flex items-center justify-center text-3xl font-heading text-tertiary/20">
-              JS
-            </div>
+            {user ? (
+              <Avatar seed={user.avatar?.seed || user.name} style={user.avatar?.style || 'lorelei'} size={180} className="rounded-full border border-white/5 bg-surface z-10" />
+            ) : (
+              <div className="w-48 h-48 rounded-full bg-surface border border-white/5 flex items-center justify-center text-3xl font-heading text-tertiary/20">
+                YOU
+              </div>
+            )}
             <div className="mt-8 text-center">
               <h3 className="font-heading font-bold text-lg text-tertiary/80">
-                Jordan S.
+                {user?.name || "You"}
               </h3>
               <span className="text-xs text-tertiary/40 uppercase tracking-widest mt-1 block">
-                Participant
+                {role === 'seeker' ? 'Seeker' : 'Listener'}
               </span>
             </div>
           </div>
@@ -267,7 +265,7 @@ export default function Room() {
                 Record
               </span>
             </button>
-            <button className="flex flex-col items-center gap-1 w-16 text-red-500 hover:text-red-400 transition">
+            <button onClick={() => navigate('/dashboard')} className="flex flex-col items-center gap-1 w-16 text-red-500 hover:text-red-400 transition">
               <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
                 <svg
                   width="20"
@@ -297,7 +295,7 @@ export default function Room() {
             LIVE SESSION
           </h3>
           <span className="text-[10px] text-primary uppercase">
-            4 Members Active
+            2 Members Active
           </span>
         </div>
 
@@ -348,7 +346,7 @@ export default function Room() {
             >
               <div className="flex items-baseline gap-2 mb-1">
                 <span
-                  className={`text-[10px] uppercase tracking-widest font-bold ${msg.sender === "system" ? "text-tertiary/30" : msg.sender === "Dr. Elena Thorne" ? "text-primary" : "text-tertiary/60"}`}
+                  className={`text-[10px] uppercase tracking-widest font-bold ${msg.sender === "system" ? "text-tertiary/30" : msg.senderId === user?._id ? "text-primary" : "text-secondary"}`}
                 >
                   {msg.sender === "system" ? "" : msg.sender}
                 </span>

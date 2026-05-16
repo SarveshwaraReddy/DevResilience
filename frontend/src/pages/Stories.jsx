@@ -25,7 +25,7 @@ export default function Stories() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
   const [currentUserId, setCurrentUserId] = useState(null);
-  
+
   // Form State
   const [formData, setFormData] = useState({ title: '', category: 'CAREER', excerpt: '', content: '' });
 
@@ -222,10 +222,10 @@ export default function Stories() {
 
   if (selectedStory) {
     const isLiked = currentUserId && selectedStory.likes?.includes(currentUserId);
-    
+
     return (
       <div className="pb-12 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <button 
+        <button
           onClick={() => setSelectedStory(null)}
           className="mb-8 flex items-center gap-2 text-tertiary/60 hover:text-primary transition-colors"
         >
@@ -253,10 +253,10 @@ export default function Stories() {
           </div>
           <h1 className="font-heading text-4xl mt-6 mb-4">{selectedStory.title}</h1>
           <div className="flex items-center gap-3 mb-8">
-            <Avatar 
-              seed={selectedStory.author?.avatar?.seed || selectedStory.author?.name || 'Anonymous'} 
-              style={selectedStory.author?.avatar?.style || 'lorelei'} 
-              size={40} 
+            <Avatar
+              seed={selectedStory.author?.avatar?.seed || selectedStory.author?.name || 'Anonymous'}
+              style={selectedStory.author?.avatar?.style || 'lorelei'}
+              size={40}
             />
             <p className="text-sm text-tertiary/50">By {selectedStory.author?.name || 'Anonymous'}</p>
           </div>
@@ -285,10 +285,10 @@ export default function Stories() {
               <div key={comment._id} className="bg-white/5 p-4 rounded-lg relative group">
                 <div className="flex justify-between items-start">
                   <div className="flex items-start gap-3">
-                    <Avatar 
-                      seed={comment.author?.avatar?.seed || comment.author?.name || 'Anonymous'} 
-                      style={comment.author?.avatar?.style || 'lorelei'} 
-                      size={32} 
+                    <Avatar
+                      seed={comment.author?.avatar?.seed || comment.author?.name || 'Anonymous'}
+                      style={comment.author?.avatar?.style || 'lorelei'}
+                      size={32}
                     />
                     <div>
                       <p className="text-tertiary/80">{comment.text}</p>
@@ -323,9 +323,9 @@ export default function Stories() {
         <form onSubmit={handleSubmitStory} className="glass-card p-8 flex flex-col gap-6">
           <div>
             <label className="block text-xs font-label uppercase tracking-widest text-tertiary/60 mb-2">Category</label>
-            <select 
-              value={formData.category} 
-              onChange={e => setFormData({...formData, category: e.target.value})}
+            <select
+              value={formData.category}
+              onChange={e => setFormData({ ...formData, category: e.target.value })}
               className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary/50 text-tertiary"
             >
               <option className="bg-black text-white" value="CAREER">Career</option>
@@ -336,24 +336,24 @@ export default function Stories() {
           </div>
           <div>
             <label className="block text-xs font-label uppercase tracking-widest text-tertiary/60 mb-2">Title</label>
-            <input 
-              required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})}
+            <input
+              required value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })}
               placeholder="A captivating title..."
               className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary/50"
             />
           </div>
           <div>
             <label className="block text-xs font-label uppercase tracking-widest text-tertiary/60 mb-2">Short Excerpt (Teaser)</label>
-            <textarea 
-              required value={formData.excerpt} onChange={e => setFormData({...formData, excerpt: e.target.value})}
+            <textarea
+              required value={formData.excerpt} onChange={e => setFormData({ ...formData, excerpt: e.target.value })}
               placeholder="A 1-2 sentence summary to hook readers..." rows="2"
               className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary/50 resize-none"
             />
           </div>
           <div>
             <label className="block text-xs font-label uppercase tracking-widest text-tertiary/60 mb-2">Full Story</label>
-            <textarea 
-              required value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})}
+            <textarea
+              required value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })}
               placeholder="Share your experience..." rows="8"
               className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-4 text-sm focus:outline-none focus:border-primary/50 resize-none"
             />
@@ -378,40 +378,41 @@ export default function Stories() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {stories.map((story) => {
           const isLiked = currentUserId && story.likes?.includes(currentUserId);
-          
+
           return (
-          <div key={story._id || story.id} className="story-card glass-card p-8 flex flex-col h-[380px] group hover:border-white/10 transition-colors relative">
-            <div className="flex justify-between items-start mb-6">
-              <span className={`text-[10px] font-label uppercase tracking-widest px-3 py-1 rounded-full border border-primary/50 text-primary`}>
-                {story.category}
-              </span>
-              <button
-                onClick={() => handleDeleteStory(story._id)}
-                className="text-tertiary/40 hover:text-red-400 transition-colors p-2 hover:bg-white/5 rounded-lg opacity-0 group-hover:opacity-100"
-                title="Delete story"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-            <h2 className="font-heading text-2xl mb-4 leading-tight group-hover:text-primary transition-colors">
-              {story.title}
-            </h2>
-            <p className="text-tertiary/60 text-sm leading-relaxed flex-1">
-              "{story.excerpt}"
-            </p>
-            <div className="mt-6 pt-6 border-t border-white/5 flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <button onClick={() => handleLike(story._id)} className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
-                  <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-400 text-red-400' : ''}`} />
-                  <span className="text-sm">{story.likesCount || 0}</span>
-                </button>
-                <button onClick={() => setSelectedStory(story)} className="text-primary text-sm font-medium flex items-center gap-2 hover:gap-3 transition-all">
-                  Read More <span>→</span>
+            <div key={story._id || story.id} className="story-card glass-card p-8 flex flex-col h-[380px] group hover:border-white/10 transition-colors relative">
+              <div className="flex justify-between items-start mb-6">
+                <span className={`text-[10px] font-label uppercase tracking-widest px-3 py-1 rounded-full border border-primary/50 text-primary`}>
+                  {story.category}
+                </span>
+                <button
+                  onClick={() => handleDeleteStory(story._id)}
+                  className="text-tertiary/40 hover:text-red-400 transition-colors p-2 hover:bg-white/5 rounded-lg opacity-0 group-hover:opacity-100"
+                  title="Delete story"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
+              <h2 className="font-heading text-2xl mb-4 leading-tight group-hover:text-primary transition-colors">
+                {story.title}
+              </h2>
+              <p className="text-tertiary/60 text-sm leading-relaxed flex-1">
+                "{story.excerpt}"
+              </p>
+              <div className="mt-6 pt-6 border-t border-white/5 flex justify-between items-center">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => handleLike(story._id)} className="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1">
+                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-red-400 text-red-400' : ''}`} />
+                    <span className="text-sm">{story.likesCount || 0}</span>
+                  </button>
+                  <button onClick={() => setSelectedStory(story)} className="text-primary text-sm font-medium flex items-center gap-2 hover:gap-3 transition-all">
+                    Read More <span>→</span>
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )})}
+          )
+        })}
 
         <div className="story-card bg-surface border border-primary/20 rounded-2xl p-8 flex flex-col items-center justify-center text-center h-[380px] relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
