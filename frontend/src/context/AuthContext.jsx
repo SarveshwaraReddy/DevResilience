@@ -49,11 +49,11 @@ export const AuthProvider = ({ children }) => {
     return { success: false, error: data.error };
   };
 
-  const register = async (name, email, password, role) => {
+  const register = async (name, email, password, role, avatarData) => {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role })
+      body: JSON.stringify({ name, email, password, role, avatar: avatarData })
     });
     const data = await res.json();
     if (data.success) {

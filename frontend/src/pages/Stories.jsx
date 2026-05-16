@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { X, Trash2, Heart } from "lucide-react";
+import Avatar from "../components/avatar/Avatar";
 
 // Register GSAP plugins once at module level.
 gsap.registerPlugin(ScrollTrigger);
@@ -251,7 +252,14 @@ export default function Stories() {
             </div>
           </div>
           <h1 className="font-heading text-4xl mt-6 mb-4">{selectedStory.title}</h1>
-          <p className="text-sm text-tertiary/50 mb-8">By {selectedStory.author?.name || 'Anonymous'}</p>
+          <div className="flex items-center gap-3 mb-8">
+            <Avatar 
+              seed={selectedStory.author?.avatar?.seed || selectedStory.author?.name || 'Anonymous'} 
+              style={selectedStory.author?.avatar?.style || 'lorelei'} 
+              size={40} 
+            />
+            <p className="text-sm text-tertiary/50">By {selectedStory.author?.name || 'Anonymous'}</p>
+          </div>
           <div className="prose prose-invert max-w-none text-tertiary/80 leading-relaxed whitespace-pre-wrap">
             {selectedStory.content || selectedStory.excerpt}
           </div>
@@ -276,9 +284,16 @@ export default function Stories() {
             {comments.map((comment) => (
               <div key={comment._id} className="bg-white/5 p-4 rounded-lg relative group">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-tertiary/80">{comment.text}</p>
-                    <p className="text-xs text-tertiary/50 mt-2">By {comment.author?.name || 'Anonymous'} • {new Date(comment.createdAt).toLocaleDateString()}</p>
+                  <div className="flex items-start gap-3">
+                    <Avatar 
+                      seed={comment.author?.avatar?.seed || comment.author?.name || 'Anonymous'} 
+                      style={comment.author?.avatar?.style || 'lorelei'} 
+                      size={32} 
+                    />
+                    <div>
+                      <p className="text-tertiary/80">{comment.text}</p>
+                      <p className="text-xs text-tertiary/50 mt-2">By {comment.author?.name || 'Anonymous'} • {new Date(comment.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
                   <button
                     onClick={() => handleDeleteComment(comment._id)}

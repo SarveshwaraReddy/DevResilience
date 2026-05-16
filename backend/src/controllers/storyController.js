@@ -24,7 +24,7 @@ export const getStories = async (req, res) => {
 
     // Query: fetch stories, populate author name, sort newest first
     const storiesFromDb = await Story.find({})
-      .populate('author', 'name')
+      .populate('author', 'name avatar')
       .sort({ createdAt: -1 });
 
     // Safety: ensure we always have an array before accessing `.length`
@@ -68,6 +68,7 @@ export const createStory = async (req, res) => {
       content,
       author: req.user._id // assuming protect middleware is used
     });
+    await story.populate('author', 'name avatar');
     res.status(201).json({ success: true, data: story });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error creating story', error: error.message });
@@ -76,7 +77,7 @@ export const createStory = async (req, res) => {
 
 export const getStoryById = async (req, res) => {
   try {
-    const story = await Story.findById(req.params.id).populate('author', 'name');
+    const story = await Story.findById(req.params.id).populate('author', 'name avatar');
     if (!story) return res.status(404).json({ success: false, message: 'Story not found' });
     res.status(200).json({ success: true, data: story });
   } catch (error) {

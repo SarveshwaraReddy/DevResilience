@@ -38,6 +38,16 @@ const userSchema = new mongoose.Schema({
     aqiThreshold: { type: Number, default: 100 }, // Threshold for when to show warnings
     theme: { type: String, enum: ['light', 'dark', 'system'], default: 'dark' }
   },
+  avatar: {
+    style: {
+      type: String,
+      default: "lorelei"
+    },
+    seed: {
+      type: String,
+      default: ""
+    }
+  },
   createdAt: {
     type: Date,
     default: Date.now

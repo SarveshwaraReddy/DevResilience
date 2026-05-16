@@ -9,5 +9,9 @@
     "prebuild:all": "cd frontend && npm install",
     "build:all": "cd frontend && npm run build",
     "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  },
+  "dependencies": {
+    "@dicebear/collection": "^9.4.2",
+    "@dicebear/core": "^9.4.2"
   }
 }

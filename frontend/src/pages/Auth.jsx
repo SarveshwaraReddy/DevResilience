@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useAuth } from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
+import AvatarPicker from "../components/avatar/AvatarPicker";
 
 export default function Auth() {
   const containerRef = useRef(null);
@@ -13,6 +14,7 @@ export default function Auth() {
   const [name, setName] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState("");
+  const [avatarData, setAvatarData] = useState(null);
   const { token, login, register } = useAuth();
 
   if (token) {
@@ -50,7 +52,7 @@ export default function Auth() {
     if (isLogin) {
       result = await login(email, password);
     } else {
-      result = await register(name || email.split("@")[0], email, password, activeTab);
+      result = await register(name || email.split("@")[0], email, password, activeTab, avatarData);
     }
     
     if (!result.success) {
@@ -109,10 +111,11 @@ export default function Auth() {
         </div>
 
         {/* Right Side: Form */}
-        <div className="flex-[1.2] p-12 flex flex-col justify-center bg-surface relative">
-          <h2 className="font-heading text-3xl mt-6 stagger-item">
-            {isLogin ? "Welcome Back" : "Create Account"}
-          </h2>
+        <div className="flex-[1.2] p-12 flex flex-col bg-surface relative overflow-y-auto">
+          <div className="my-auto py-8">
+            <h2 className="font-heading text-3xl stagger-item">
+              {isLogin ? "Welcome Back" : "Create Account"}
+            </h2>
           <p className="text-tertiary/50 text-sm mb-4 stagger-item">
             {isLogin ? "Configure your access parameters below." : "Initialize your new profile parameters."}
           </p>
@@ -137,17 +140,25 @@ export default function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-6 stagger-item">
             {!isLogin && (
-              <div>
-                <label className="block text-sm font-label mb-0 text-tertiary/80">
-                  Alias / Name
-                </label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Your dev alias"
-                  className="w-full bg-transparent border-b border-white/10 py-2 text-tertiary focus:outline-none focus:border-primary transition-all placeholder:text-tertiary/30"
-                />
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-label mb-0 text-tertiary/80">
+                    Alias / Name
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your dev alias"
+                    className="w-full bg-transparent border-b border-white/10 py-2 text-tertiary focus:outline-none focus:border-primary transition-all placeholder:text-tertiary/30"
+                  />
+                </div>
+                <div className="pt-2">
+                  <AvatarPicker 
+                    username={name || "Guest"} 
+                    onSelect={(data) => setAvatarData(data)} 
+                  />
+                </div>
               </div>
             )}
             <div>
@@ -240,6 +251,7 @@ export default function Auth() {
               Terminal
             </button>
           </div> */}
+          </div>
         </div>
       </div>
 

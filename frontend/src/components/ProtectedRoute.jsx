@@ -7,8 +7,9 @@ export default function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center text-primary">
-        Loading...
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-6">
+        <div className="loader"></div>
+        <span className="text-tertiary/60 font-medium text-xs tracking-[0.2em] uppercase">Authenticating</span>
       </div>
     );
   }

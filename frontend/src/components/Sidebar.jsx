@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Feed", href: "/dashboard/stories", icon: BookOpen },
-  { name: "Messages", href: "/dashboard/mentors", icon: MessageSquare },
+  { name: "Messages", href: "/dashboard/messages", icon: MessageSquare },
   { name: "Network", href: "/dashboard/network", icon: Users },
   { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { name: "Profile", href: "/dashboard/profile", icon: User },

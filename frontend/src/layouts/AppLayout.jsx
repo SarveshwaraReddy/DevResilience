@@ -1,9 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import PageTransition from "./PageTransition";
 import { Search, Bell, User } from "lucide-react";
+import Avatar from "../components/avatar/Avatar";
+import { useAuth } from "../context/AuthContext";
 
 export default function AppLayout() {
+  const { user } = useAuth();
   return (
     <div className="flex bg-background min-h-screen text-tertiary font-body">
       <Sidebar />
@@ -37,17 +39,19 @@ export default function AppLayout() {
             <NavLink to="/dashboard/notifications" className="text-tertiary/60 hover:text-tertiary transition-colors">
               <Bell className="w-5 h-5" />
             </NavLink>
-            <NavLink to="/dashboard/profile" className="w-8 h-8 rounded-full bg-surface-hover border border-white/10 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50">
-              <User className="w-4 h-4 text-tertiary/80" />
+            <NavLink to="/dashboard/profile" className="flex items-center justify-center cursor-pointer transition-transform hover:scale-105">
+              <Avatar 
+                seed={user?.avatar?.seed || user?.name || "Guest"} 
+                style={user?.avatar?.style || "lorelei"} 
+                size={32} 
+              />
             </NavLink>
           </div>
         </header>
 
         {/* Main Content Area */}
         <main className="flex-1 overflow-y-auto p-8 relative">
-          <PageTransition>
-            <Outlet />
-          </PageTransition>
+          <Outlet />
         </main>
       </div>
     </div>

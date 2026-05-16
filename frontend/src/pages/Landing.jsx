@@ -1,7 +1,16 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Users, Book, MessageCircle, TrendingUp, ArrowRight, Shield, Zap, Heart } from "lucide-react";
+import {
+  Users,
+  Book,
+  MessageCircle,
+  TrendingUp,
+  ArrowRight,
+  Shield,
+  Zap,
+  Heart,
+} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -18,13 +27,13 @@ export default function Landing() {
       gsap.fromTo(
         ".hero-text",
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" }
+        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
       );
 
       gsap.fromTo(
         ".hero-cta",
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.3 }
+        { y: 0, opacity: 1, duration: 0.8, ease: "power2.out", delay: 0.3 },
       );
 
       // Feature cards scroll animation
@@ -43,7 +52,7 @@ export default function Landing() {
               start: "top bottom-=100",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
       });
 
@@ -65,7 +74,7 @@ export default function Landing() {
               start: "top bottom-=100",
               toggleActions: "play none none reverse",
             },
-          }
+          },
         );
       });
 
@@ -102,33 +111,33 @@ export default function Landing() {
   const features = [
     {
       icon: Book,
-      title: "Resilience Stories",
+      title: "Shared Stories",
       description:
-        "Working 100% right now! Read real accounts of engineers, share your own story, drop comments, and like posts. Built securely with real-time updates.",
+        "Read real accounts of developers navigating their careers. Share your own experiences, drop comments, and engage in honest discussions.",
       color: "primary",
-      status: "Live Now",
+      status: "Live",
     },
     {
       icon: Users,
-      title: "Find Mentors",
+      title: "Community Network",
       description:
-        "Upcoming Feature: Connect with experienced professionals who have walked the same path. Get guidance tailored to your unique journey.",
+        "Connect with people who understand the journey. A growing space focused on peer support rather than networking or recruiting.",
       color: "secondary",
       status: "Upcoming",
     },
     {
       icon: MessageCircle,
-      title: "WarRoom Support",
+      title: "Support Circles",
       description:
-        "Upcoming Feature: Join anonymous peer support sessions. A secure, real-time safe space to express, listen, and grow together.",
+        "Join small community support rooms. A secure, calm space to express challenges, listen to others, and grow together.",
       color: "primary",
       status: "Upcoming",
     },
     {
       icon: TrendingUp,
-      title: "AI Insights Dashboard",
+      title: "Growth Reflections",
       description:
-        "Upcoming Feature: Get data-driven resilience tracking and personal growth analytics derived directly from your stories and community interactions.",
+        "Explore common themes and takeaways from community discussions to aid in your own learning and resilience building.",
       color: "secondary",
       status: "Upcoming",
     },
@@ -138,7 +147,8 @@ export default function Landing() {
     {
       icon: Shield,
       title: "Safe & Anonymous",
-      description: "Your privacy is our priority. Share freely without judgment.",
+      description:
+        "Your privacy is our priority. Share freely without judgment.",
     },
     {
       icon: Zap,
@@ -153,7 +163,10 @@ export default function Landing() {
   ];
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-background overflow-hidden">
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-background overflow-hidden"
+    >
       {/* Animated Background Glows */}
       <div className="glow-1 fixed top-1/4 left-1/3 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="glow-2 fixed bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] pointer-events-none" />
@@ -165,19 +178,47 @@ export default function Landing() {
             <div className="w-7 h-7 rounded-md bg-gradient-to-br from-primary to-secondary" />
             DevResilience
           </div>
-          
+
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-tertiary/70">
-            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>Home</span>
-            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => document.getElementById('features')?.scrollIntoView({behavior: 'smooth'})}>Features</span>
-            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => document.getElementById('about')?.scrollIntoView({behavior: 'smooth'})}>About</span>
+            <span
+              className="cursor-pointer hover:text-primary transition-colors"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              Home
+            </span>
+            <span
+              className="cursor-pointer hover:text-primary transition-colors"
+              onClick={() =>
+                document
+                  .getElementById("features")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Features
+            </span>
+            <span
+              className="cursor-pointer hover:text-primary transition-colors"
+              onClick={() =>
+                document
+                  .getElementById("about")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              About
+            </span>
           </nav>
 
           <div className="flex items-center gap-4">
             {!token ? (
               <>
-                <button onClick={() => navigate('/auth')} className="hidden sm:block text-sm font-medium text-tertiary/70 hover:text-primary transition-colors">Login</button>
                 <button
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate("/auth")}
+                  className="hidden sm:block text-sm font-medium text-tertiary/70 hover:text-primary transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate("/auth")}
                   className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all text-sm"
                 >
                   Register
@@ -185,7 +226,7 @@ export default function Landing() {
               </>
             ) : (
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate("/dashboard")}
                 className="px-6 py-2.5 bg-primary text-background font-bold rounded-lg hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all text-sm"
               >
                 Dashboard
@@ -199,16 +240,17 @@ export default function Landing() {
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-24 md:py-32">
         <div className="text-center space-y-8">
           <h1 className="hero-text font-heading text-5xl md:text-6xl leading-tight">
-            Your Resilience
+            Developers Supporting
             <br />
             <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-              Our Community
+              Developers
             </span>
           </h1>
 
           <p className="hero-text text-tertiary/70 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            A safe space for engineers to navigate challenges, find mentorship, share stories,
-            and build meaningful connections. Because no one should face this journey alone.
+            A growing space for developers navigating challenges together. Start
+            meaningful conversations, share experiences openly, and connect with
+            people who understand the journey.
           </p>
 
           <div className="hero-cta flex flex-col sm:flex-row gap-4 justify-center pt-4">
@@ -219,35 +261,90 @@ export default function Landing() {
               {token ? "Go to Dashboard" : "Join the Community"}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
-            <button className="px-8 py-3.5 border border-primary/30 text-primary font-bold rounded-lg hover:bg-primary/10 transition-all">
-              Learn More
+            <button
+              className="px-8 py-3.5 border border-primary/30 text-primary font-bold rounded-lg hover:bg-primary/10 transition-all"
+              onClick={() =>
+                document
+                  .getElementById("features")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+            >
+              Explore Discussions
             </button>
           </div>
 
-          {/* Hero Stats */}
-          <div className="grid grid-cols-3 gap-6 mt-16 max-w-2xl mx-auto">
-            <div className="glass-card p-6">
-              <p className="text-2xl md:text-3xl font-heading text-primary">500+</p>
-              <p className="text-tertiary/60 text-sm mt-2">Stories Shared</p>
+          {/* Community Values */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-3xl mx-auto">
+            {/* Card 1 */}
+            <div className="glass-card group h-32 overflow-hidden">
+              <div className="h-[200%] w-full flex flex-col transition-transform duration-500 ease-in-out group-hover:-translate-y-1/2">
+                {/* Top Half (Default) */}
+                <div className="h-1/2 w-full flex flex-col items-center justify-center bg-white/5 p-4">
+                  <Book className="w-8 h-8 text-primary  mb-2" />
+                  <p className="text-tertiary font-medium">
+                    Shared Experiences
+                  </p>
+                </div>
+                {/* Bottom Half (Hover) */}
+                <div className="h-1/2 w-full flex flex-col items-center justify-center  bg-primary text-white p-4">
+                  <p className="text-lg font-medium opacity-100 text-center">
+                    Read and write real stories
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="glass-card p-6">
-              <p className="text-2xl md:text-3xl font-heading text-secondary">200+</p>
-              <p className="text-tertiary/60 text-sm mt-2">Mentors Ready</p>
+
+            {/* Card 2 */}
+            <div className="glass-card group h-32 overflow-hidden">
+              <div className="h-[200%] w-full flex flex-col transition-transform duration-500 ease-in-out group-hover:-translate-y-1/2">
+                {/* Top Half (Default) */}
+                <div className="h-1/2 w-full flex flex-col items-center justify-center bg-white/5 p-4">
+                  <MessageCircle className="w-8 h-8 text-secondary mb-2" />
+                  <p className="text-tertiary font-medium">
+                    Authentic Discussions
+                  </p>
+                </div>
+                {/* Bottom Half (Hover) */}
+                <div className="h-1/2 w-full flex flex-col items-center justify-center bg-primary text-white p-4">
+                  <p className="text-lg font-medium text-center">
+                    No corporate buzzwords
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="glass-card p-6">
-              <p className="text-2xl md:text-3xl font-heading text-primary">2K+</p>
-              <p className="text-tertiary/60 text-sm mt-2">Community Members</p>
+
+            {/* Card 3 */}
+            <div className="glass-card group h-32 overflow-hidden">
+              <div className="h-[200%] w-full flex flex-col transition-transform duration-500 ease-in-out group-hover:-translate-y-1/2">
+                {/* Top Half (Default) */}
+                <div className="h-1/2 w-full flex flex-col items-center justify-center bg-white/5 p-4">
+                  <Users className="w-8 h-8 text-primary mb-2" />
+                  <p className="text-tertiary font-medium">Growing Together</p>
+                </div>
+                {/* Bottom Half (Hover) */}
+                <div className="h-1/2 w-full flex flex-col items-center justify-center bg-primary text-white p-4  ">
+                  <p className="text-lg font-medium text-center">
+                    A small, supportive peer group
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+      <section
+        id="features"
+        className="relative z-10 max-w-7xl mx-auto px-6 py-24"
+      >
         <div className="text-center mb-16">
-          <h2 className="font-heading text-4xl md:text-5xl mb-4">Platform Features</h2>
+          <h2 className="font-heading text-4xl md:text-5xl mb-4">
+            Platform Features
+          </h2>
           <p className="text-tertiary/60 max-w-2xl mx-auto">
-            Everything you need to navigate your engineering journey with support and confidence.
+            Everything you need to navigate your engineering journey with
+            support and confidence.
           </p>
         </div>
 
@@ -259,16 +356,22 @@ export default function Landing() {
                 key={index}
                 className="feature-card group glass-card p-8 hover:border-white/20 transition-all cursor-pointer"
               >
-                <div className={`w-12 h-12 rounded-xl bg-${feature.color}/20 flex items-center justify-center text-${feature.color} mb-6 group-hover:scale-110 transition-transform`}>
+                <div
+                  className={`w-12 h-12 rounded-xl bg-${feature.color}/20 flex items-center justify-center text-${feature.color} mb-6 group-hover:scale-110 transition-transform`}
+                >
                   <Icon className="w-6 h-6" />
                 </div>
                 <h3 className="font-heading text-2xl mb-3 group-hover:text-primary transition-colors flex items-center flex-wrap gap-3">
                   {feature.title}
-                  <span className={`text-[10px] font-label uppercase tracking-widest px-2 py-0.5 rounded-full border ${feature.status === 'Live Now' ? 'border-green-500/50 text-green-400 bg-green-500/10' : 'border-tertiary/30 text-tertiary/60 bg-white/5'}`}>
+                  <span
+                    className={`text-[10px] font-label uppercase tracking-widest px-2 py-0.5 rounded-full border ${feature.status === "Live Now" ? "border-green-500/50 text-green-400 bg-green-500/10" : "border-tertiary/30 text-tertiary/60 bg-white/5"}`}
+                  >
                     {feature.status}
                   </span>
                 </h3>
-                <p className="text-tertiary/70 leading-relaxed">{feature.description}</p>
+                <p className="text-tertiary/70 leading-relaxed">
+                  {feature.description}
+                </p>
                 <div className="mt-6 flex items-center gap-2 text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                   Explore <ArrowRight className="w-4 h-4" />
                 </div>
@@ -279,11 +382,16 @@ export default function Landing() {
       </section>
 
       {/* Benefits Section */}
-      <section id="about" className="relative z-10 max-w-7xl mx-auto px-6 py-24">
+      <section
+        id="about"
+        className="relative z-10 max-w-7xl mx-auto px-6 py-24"
+      >
         <div className="text-center mb-16">
-          <h2 className="font-heading text-4xl md:text-5xl mb-4">Why Join DevResilience?</h2>
+          <h2 className="font-heading text-4xl md:text-5xl mb-4">
+            Why Join Our Community?
+          </h2>
           <p className="text-tertiary/60 max-w-2xl mx-auto">
-            Built on the foundation of empathy, understanding, and real experiences.
+            We're an early community focused on authentic support and growth.
           </p>
         </div>
 
@@ -299,7 +407,9 @@ export default function Landing() {
                   <Icon className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="font-heading text-xl mb-3">{benefit.title}</h3>
-                <p className="text-tertiary/70 text-sm leading-relaxed">{benefit.description}</p>
+                <p className="text-tertiary/70 text-sm leading-relaxed">
+                  {benefit.description}
+                </p>
               </div>
             );
           })}
@@ -309,18 +419,34 @@ export default function Landing() {
       {/* How It Works Section */}
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-24">
         <div className="text-center mb-16">
-          <h2 className="font-heading text-4xl md:text-5xl mb-4">How It Works</h2>
+          <h2 className="font-heading text-4xl md:text-5xl mb-4">
+            How It Works
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {[
-            { step: "01", title: "Sign Up", description: "Join as a Seeker or Mentor" },
-            { step: "02", title: "Connect", description: "Find mentors and peers" },
-            { step: "03", title: "Share", description: "Read and write stories" },
+            {
+              step: "01",
+              title: "Sign Up",
+              description: "Join the developer community",
+            },
+            {
+              step: "02",
+              title: "Connect",
+              description: "Find peers and support circles",
+            },
+            {
+              step: "03",
+              title: "Share",
+              description: "Read and write stories",
+            },
             { step: "04", title: "Grow", description: "Build your resilience" },
           ].map((item, index) => (
             <div key={index} className="glass-card p-8 text-center">
-              <div className="text-4xl font-heading text-primary mb-4">{item.step}</div>
+              <div className="text-4xl font-heading text-primary mb-4">
+                {item.step}
+              </div>
               <h3 className="font-heading text-xl mb-2">{item.title}</h3>
               <p className="text-tertiary/60 text-sm">{item.description}</p>
             </div>
@@ -332,16 +458,17 @@ export default function Landing() {
       <section className="relative z-10 max-w-7xl mx-auto px-6 py-24">
         <div className="glass-card p-12 md:p-16 text-center border-primary/30">
           <h2 className="font-heading text-4xl md:text-5xl mb-6">
-            Ready to Join a Supportive Community?
+            Ready to Start Meaningful Conversations?
           </h2>
           <p className="text-tertiary/70 text-lg max-w-2xl mx-auto mb-8">
-            Start your journey towards resilience, growth, and meaningful connections today.
+            Join an early-stage community built by developers, for developers
+            navigating their path.
           </p>
           <button
             onClick={handleGetStarted}
             className="px-10 py-4 bg-gradient-to-r from-primary to-secondary text-background font-bold rounded-lg hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] transition-all text-lg"
           >
-            {token ? "Go to Dashboard" : "Get Started Now"}
+            {token ? "Go to Dashboard" : "Enter the Community"}
           </button>
         </div>
       </section>

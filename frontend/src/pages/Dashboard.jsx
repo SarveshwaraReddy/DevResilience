@@ -5,6 +5,7 @@ import { io } from "socket.io-client";
 import { useAuth } from "../context/AuthContext";
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { NavLink } from "react-router-dom";
+import Avatar from "../components/avatar/Avatar";
 
 export default function Dashboard() {
   const [isSearching, setIsSearching] = useState(false);
@@ -132,9 +133,9 @@ export default function Dashboard() {
               </button>
 
               <div className="flex -space-x-3">
-                <div className="w-10 h-10 rounded-full border-2 border-surface bg-tertiary/20" />
-                <div className="w-10 h-10 rounded-full border-2 border-surface bg-tertiary/30" />
-                <div className="w-10 h-10 rounded-full border-2 border-surface bg-primary/20 flex items-center justify-center text-xs font-bold">
+                <Avatar seed="Alice" style="bottts" size={40} className="border-2 border-surface" />
+                <Avatar seed="Bob" style="lorelei" size={40} className="border-2 border-surface" />
+                <div className="w-10 h-10 rounded-full border-2 border-surface bg-primary/20 flex items-center justify-center text-xs font-bold z-10 relative">
                   +12
                 </div>
               </div>

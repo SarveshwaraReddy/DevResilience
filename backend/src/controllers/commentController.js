@@ -4,7 +4,7 @@ import Story from '../models/Story.js';
 export const getComments = async (req, res) => {
   try {
     const comments = await Comment.find({ story: req.params.storyId })
-      .populate('author', 'name')
+      .populate('author', 'name avatar')
       .sort({ createdAt: -1 });
 
     return res.status(200).json({ success: true, data: comments });
@@ -55,7 +55,7 @@ export const createComment = async (req, res) => {
       story: storyId,
     });
     
-    await comment.populate('author', 'name');
+    await comment.populate('author', 'name avatar');
 
     console.log('[commentController.createComment] created', {
       commentId: comment?._id,
