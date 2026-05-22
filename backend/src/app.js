@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes.js';
 import insightRoutes from './routes/insightRoutes.js';
 import storyRoutes from './routes/storyRoutes.js';
 import commentRoutes from './routes/commentRoutes.js';
+import chatRoutes from './routes/chatRoutes.js';
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/insights', insightRoutes);
 app.use('/api/v1/stories', storyRoutes);
 app.use('/api/v1/comments', commentRoutes);
+app.use('/api/v1/chat', chatRoutes);
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
