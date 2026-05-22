@@ -18,13 +18,13 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
     fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/chat/${conversation._id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        setMessages(data.data);
-        scrollToBottom();
-      }
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setMessages(data.data);
+          scrollToBottom();
+        }
+      });
 
     // Socket joins
     if (socket) {
@@ -34,12 +34,12 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
         if (msg.conversationId === conversation._id) {
           setMessages(prev => {
             if (prev.find(m => m._id === msg._id)) return prev;
-            
-            const existingOpt = prev.find(m => m.text === msg.text && 
-              ((m.senderId._id && msg.senderId._id && m.senderId._id === msg.senderId._id) || 
-               (m.senderId === msg.senderId._id)) && 
+
+            const existingOpt = prev.find(m => m.text === msg.text &&
+              ((m.senderId._id && msg.senderId._id && m.senderId._id === msg.senderId._id) ||
+                (m.senderId === msg.senderId._id)) &&
               m._id.toString().length < 20);
-              
+
             if (existingOpt) {
               return prev.map(m => m === existingOpt ? msg : m);
             }
@@ -81,7 +81,7 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
 
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
-    
+
     if (socket) {
       if (!isTyping) {
         setIsTyping(true);
@@ -89,7 +89,7 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
       }
 
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      
+
       typingTimeoutRef.current = setTimeout(() => {
         setIsTyping(false);
         socket.emit('stop_typing', { roomId: conversation._id, userId: user._id });
@@ -103,7 +103,7 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
 
     const messageText = newMessage;
     setNewMessage('');
-    
+
     // Optimistic UI
     const tempMsg = {
       _id: Date.now().toString(),
@@ -112,15 +112,15 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
       text: messageText,
       createdAt: new Date().toISOString()
     };
-    
+
     setMessages(prev => [...prev, tempMsg]);
     scrollToBottom();
-    
+
     if (socket) {
       socket.emit('stop_typing', { roomId: conversation._id, userId: user._id });
       setIsTyping(false);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      
+
       socket.emit('send_message', {
         conversationId: conversation._id,
         senderId: user._id,
@@ -133,7 +133,7 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
     <div className="flex flex-col h-full bg-background/50">
       {/* Header */}
       <div className="h-20 px-6 border-b border-white/5 flex items-center gap-4 bg-surface/50 backdrop-blur-md sticky top-0 z-10 shrink-0">
-        <button 
+        <button
           onClick={onOpenSidebar}
           className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-white/5 text-tertiary"
         >
@@ -154,20 +154,19 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
           const isMe = msg.senderId === user._id || (msg.senderId && msg.senderId._id === user._id);
           const prevMsg = idx > 0 ? messages[idx - 1] : null;
           const showAvatar = !prevMsg || prevMsg.senderId !== msg.senderId;
-          
+
           return (
             <div key={msg._id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} gap-3`}>
               {!isMe && showAvatar ? (
                 <Avatar seed={otherUser?.name} size={32} className="rounded-full shrink-0 mt-auto" />
               ) : (!isMe && <div className="w-8 shrink-0"></div>)}
-              
+
               <div className={`max-w-[70%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}>
-                <div 
-                  className={`px-5 py-3 rounded-2xl ${
-                    isMe 
-                      ? 'bg-primary text-background rounded-br-sm shadow-[0_4px_20px_rgba(34,211,238,0.2)]' 
+                <div
+                  className={`px-5 py-3 rounded-2xl ${isMe
+                      ? 'bg-primary text-background rounded-br-sm shadow-[0_4px_20px_rgba(34,211,238,0.2)]'
                       : 'bg-surface border border-white/10 text-tertiary rounded-bl-sm'
-                  }`}
+                    }`}
                 >
                   <p className="text-sm leading-relaxed">{msg.text}</p>
                 </div>
@@ -191,8 +190,8 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
             placeholder="Type your message..."
             className="w-full bg-background border border-white/10 rounded-full py-4 pl-6 pr-16 text-sm focus:outline-none focus:border-primary/50 transition-colors placeholder:text-tertiary/30"
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={!newMessage.trim()}
             className="absolute right-2 p-2 bg-primary text-background rounded-full hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:hover:bg-primary"
           >

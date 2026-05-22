@@ -84,7 +84,7 @@ export default function ChatSidebar({
           <div className="relative">
             <input 
               type="text" 
-              placeholder="Search users..." 
+              placeholder="Search By Username" 
               className="w-full bg-background/50 border border-white/10 rounded-xl py-2.5 px-4 pl-10 text-sm focus:outline-none focus:border-primary/50 transition-colors"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
