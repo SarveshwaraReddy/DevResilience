@@ -12,7 +12,7 @@ export const getConversations = async (req, res) => {
     const conversations = await Conversation.find({
       participants: userId,
     })
-      .populate('participants', 'name email avatarUrl')
+      .populate('participants', 'name email avatar bio')
       .sort({ lastMessageAt: -1 });
 
     res.status(200).json({ success: true, data: conversations });
@@ -49,13 +49,13 @@ export const createConversation = async (req, res) => {
     // Check if conversation exists
     let conversation = await Conversation.findOne({
       participants: { $all: [senderId, receiverId] },
-    }).populate('participants', 'name email avatarUrl');
+    }).populate('participants', 'name email avatar bio');
 
     if (!conversation) {
       conversation = await Conversation.create({
         participants: [senderId, receiverId],
       });
-      conversation = await conversation.populate('participants', 'name email avatarUrl');
+      conversation = await conversation.populate('participants', 'name email avatar bio');
     }
 
     res.status(200).json({ success: true, data: conversation });
@@ -75,7 +75,7 @@ export const searchUsers = async (req, res) => {
     const users = await User.find({
       name: { $regex: query, $options: 'i' },
       _id: { $ne: req.user.id }
-    }).select('name email avatarUrl').limit(10);
+    }).select('name email avatar bio').limit(10);
 
     res.status(200).json({ success: true, data: users });
   } catch (error) {

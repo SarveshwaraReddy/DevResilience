@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import { Search, Bell, User } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import Avatar from "../components/avatar/Avatar";
 import { useAuth } from "../context/AuthContext";
 

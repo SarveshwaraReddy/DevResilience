@@ -1,4 +1,4 @@
-import React from "react";
+import { StrictMode } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AppLayout from "./layouts/AppLayout";
@@ -13,16 +13,10 @@ import { AuthProvider } from "./context/AuthContext";
 import { SocketProvider } from "./context/SocketContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./index.css";
-
-const DummyPage = ({ title }) => (
-  <div className="p-8 text-tertiary">
-    <h1 className="text-2xl font-heading mb-4">{title}</h1>
-    <p className="text-tertiary/60">This feature is under development.</p>
-  </div>
-);
+import Profile from "./pages/Profile";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+  <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
@@ -42,19 +36,29 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <Route path="network" element={<Network />} />
               <Route path="messages" element={<ChatDashboard />} />
               <Route path="room/:roomId" element={<SupportRoom />} />
-              <Route path="profile" element={<DummyPage title="Profile" />} />
+              <Route path="profile" element={<Profile />} />
               <Route
                 path="notifications"
-                element={<DummyPage title="Notifications" />}
+                element={
+                  <div className="p-8 text-tertiary">
+                    <h1 className="text-2xl font-heading mb-4">Notifications</h1>
+                    <p className="text-tertiary/60">This feature is under development.</p>
+                  </div>
+                }
               />
               <Route
                 path="ai-tools"
-                element={<DummyPage title="AI Tools Dashboard" />}
+                element={
+                  <div className="p-8 text-tertiary">
+                    <h1 className="text-2xl font-heading mb-4">AI Tools Dashboard</h1>
+                    <p className="text-tertiary/60">This feature is under development.</p>
+                  </div>
+                }
               />
             </Route>
           </Routes>
         </SocketProvider>
       </AuthProvider>
     </BrowserRouter>
-  </React.StrictMode>,
+  </StrictMode>,
 );

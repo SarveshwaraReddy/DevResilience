@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../avatar/Avatar';
 
@@ -12,6 +12,12 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
   const typingTimeoutRef = useRef(null);
 
   const otherUser = conversation.participants.find(p => p._id !== user._id);
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   useEffect(() => {
     // Fetch messages
@@ -49,35 +55,30 @@ export default function ChatWindow({ conversation, user, socket, onOpenSidebar }
         }
       };
 
-      const handleTyping = (userId) => {
+      const handleSocketTyping = (userId) => {
         if (userId === otherUser._id) {
           setTypingUser(otherUser);
         }
       };
 
-      const handleStopTyping = (userId) => {
+      const handleSocketStopTyping = (userId) => {
         if (userId === otherUser._id) {
           setTypingUser(null);
         }
       };
 
       socket.on('message_received', handleMessage);
-      socket.on('typing', handleTyping);
-      socket.on('stop_typing', handleStopTyping);
+      socket.on('typing', handleSocketTyping);
+      socket.on('stop_typing', handleSocketStopTyping);
 
       return () => {
         socket.off('message_received', handleMessage);
-        socket.off('typing', handleTyping);
-        socket.off('stop_typing', handleStopTyping);
+        socket.off('typing', handleSocketTyping);
+        socket.off('stop_typing', handleSocketStopTyping);
       };
     }
-  }, [conversation._id, token, socket, otherUser._id]);
+  }, [conversation._id, token, socket, otherUser]);
 
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
 
   const handleTyping = (e) => {
     setNewMessage(e.target.value);

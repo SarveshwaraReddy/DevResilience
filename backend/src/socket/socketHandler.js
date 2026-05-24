@@ -128,7 +128,7 @@ export const socketHandler = (io) => {
           lastMessageAt: Date.now(),
         });
 
-        const populatedMessage = await newMessage.populate('senderId', 'name avatarUrl');
+        const populatedMessage = await newMessage.populate('senderId', 'name avatar');
 
         // Emit to the conversation room
         io.to(message.conversationId.toString()).emit('message_received', populatedMessage);

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../avatar/Avatar';
 import RoomCard from './RoomCard';
@@ -15,10 +15,11 @@ export default function ChatSidebar({
   const [isSearching, setIsSearching] = useState(false);
   const { token } = useAuth();
 
-  useEffect(() => {
-    if (searchQuery.length > 1 && activeTab === 'direct') {
+  const handleSearchChange = (val) => {
+    setSearchQuery(val);
+    if (val.length > 1 && activeTab === 'direct') {
       setIsSearching(true);
-      fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/chat/users/search?q=${searchQuery}`, {
+      fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/chat/users/search?q=${val}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
@@ -29,7 +30,7 @@ export default function ChatSidebar({
     } else {
       setSearchResults([]);
     }
-  }, [searchQuery, token, activeTab]);
+  };
 
   const startConversation = async (otherUser) => {
     try {
@@ -87,7 +88,7 @@ export default function ChatSidebar({
               placeholder="Search By Username" 
               className="w-full bg-background/50 border border-white/10 rounded-xl py-2.5 px-4 pl-10 text-sm focus:outline-none focus:border-primary/50 transition-colors"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
             <svg className="absolute left-3.5 top-3 w-4 h-4 text-tertiary/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -175,7 +176,7 @@ export default function ChatSidebar({
                   room={room}
                   isActive={selectedRoom?.id === room.id}
                   onClick={setSelectedRoom}
-                  membersCount={onlineUsers.length > 0 ? Math.floor(Math.random() * 5) + 1 : 0} // Mock count for demo
+                  membersCount={onlineUsers.length > 0 ? (room.id.length % 5) + 1 : 0} // Stable mock count for demo
                 />
               ))}
             </div>

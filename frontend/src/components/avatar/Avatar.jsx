@@ -1,6 +1,5 @@
 // src/components/avatar/Avatar.jsx
 
-import React from "react";
 import { createAvatar } from "@dicebear/core";
 
 import {

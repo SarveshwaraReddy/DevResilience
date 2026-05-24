@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
@@ -8,8 +9,15 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!localStorage.getItem('token'));
   const navigate = useNavigate();
+
+  const logout = useCallback(() => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('token');
+    navigate('/');
+  }, [navigate]);
 
   useEffect(() => {
     if (token) {
@@ -27,10 +35,8 @@ export const AuthProvider = ({ children }) => {
       })
       .catch(() => logout())
       .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
     }
-  }, [token]);
+  }, [token, logout]);
 
   const login = async (email, password) => {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/auth/login`, {
@@ -66,15 +72,29 @@ export const AuthProvider = ({ children }) => {
     return { success: false, error: data.error };
   };
 
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('token');
-    navigate('/');
+  const updateProfile = async (profileData) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUser(data.data);
+        return { success: true };
+      }
+      return { success: false, error: data.error || data.message || 'Failed to update profile' };
+    } catch (err) {
+      return { success: false, error: err.message || 'Network error updating profile' };
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateProfile, setUser }}>
       {children}
     </AuthContext.Provider>
   );

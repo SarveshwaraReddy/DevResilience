@@ -24,23 +24,21 @@ export default function Stories() {
   const [selectedStory, setSelectedStory] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState('');
-  const [currentUserId, setCurrentUserId] = useState(null);
-
-  // Form State
-  const [formData, setFormData] = useState({ title: '', category: 'CAREER', excerpt: '', content: '' });
-
-  useEffect(() => {
-    fetchStories();
+  const [currentUserId] = useState(() => {
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        setCurrentUserId(payload.id || payload.userId || payload._id);
-      } catch (e) {
-        // Ignore parsing errors
+        return payload.id || payload.userId || payload._id;
+      } catch {
+        return null;
       }
     }
-  }, []);
+    return null;
+  });
+
+  // Form State
+  const [formData, setFormData] = useState({ title: '', category: 'CAREER', excerpt: '', content: '' });
 
   const fetchStories = async () => {
     try {
@@ -60,20 +58,10 @@ export default function Stories() {
     }
   };
 
-  const fetchComments = async (storyId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/comments/${storyId}/comments`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) {
-        setComments(data.data);
-      }
-    } catch (err) {
-      console.log('Error fetching comments');
-    }
-  };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchStories();
+  }, []);
 
   const handleAddComment = async (e) => {
     e.preventDefault();
@@ -89,7 +77,7 @@ export default function Stories() {
         setComments([data.data, ...comments]);
         setNewComment('');
       }
-    } catch (err) {
+    } catch {
       console.log('Error adding comment');
     }
   };
@@ -117,7 +105,19 @@ export default function Stories() {
 
   useEffect(() => {
     if (selectedStory) {
-      fetchComments(selectedStory._id);
+      const token = localStorage.getItem('token');
+      fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/comments/${selectedStory._id}/comments`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setComments(data.data);
+        }
+      })
+      .catch(() => {
+        console.log('Error fetching comments');
+      });
     }
   }, [selectedStory]);
 
@@ -215,7 +215,7 @@ export default function Stories() {
           }
         }
       }
-    } catch (err) {
+    } catch {
       console.log('Error liking story');
     }
   };

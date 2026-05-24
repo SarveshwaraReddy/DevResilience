@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Avatar from '../avatar/Avatar';
 
@@ -7,6 +7,12 @@ export default function CommunityRoomWindow({ room, user, socket, onOpenSidebar 
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
   const { token } = useAuth();
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+  };
 
   useEffect(() => {
     // Fetch previous messages
@@ -50,11 +56,6 @@ export default function CommunityRoomWindow({ room, user, socket, onOpenSidebar 
     }
   }, [room.id, socket, token]);
 
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
-  };
 
   const handleSendMessage = (e) => {
     e.preventDefault();

@@ -36,6 +36,7 @@ export const registerUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        bio: user.bio,
         token: generateToken(user._id)
       }
     });
@@ -77,6 +78,7 @@ export const loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         avatar: user.avatar,
+        bio: user.bio,
         token: generateToken(user._id)
       }
     });
@@ -91,6 +93,33 @@ export const loginUser = async (req, res) => {
 export const getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
+    res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/v1/auth/profile
+// @access  Private
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, bio, avatar } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    if (name) user.name = name;
+    if (bio !== undefined) user.bio = bio;
+    if (avatar) {
+      if (avatar.style) user.avatar.style = avatar.style;
+      if (avatar.seed) user.avatar.seed = avatar.seed;
+    }
+
+    await user.save();
+
     res.status(200).json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import gsap from "gsap";
 import { useAuth } from "../context/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -18,10 +17,6 @@ export default function Auth() {
   const [avatarData, setAvatarData] = useState(null);
   const { token, login, register } = useAuth();
 
-  if (token) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.fromTo(
@@ -39,6 +34,10 @@ export default function Auth() {
     }, containerRef);
     return () => ctx.revert();
   }, [activeTab]);
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleGuestEntry = () => {
     const uuid = crypto.randomUUID();

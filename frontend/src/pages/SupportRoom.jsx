@@ -11,11 +11,11 @@ export default function Room() {
   const navigate = useNavigate();
   const socketRef = useRef(null);
   
-  const [partner, setPartner] = useState(() => {
+  const [partner] = useState(() => {
     const p = sessionStorage.getItem('supportPartner');
     return p ? JSON.parse(p) : null;
   });
-  const [role, setRole] = useState(() => sessionStorage.getItem('supportRole') || 'seeker');
+  const [role] = useState(() => sessionStorage.getItem('supportRole') || 'seeker');
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -25,7 +25,7 @@ export default function Room() {
     }
   ]);
   const [newMessage, setNewMessage] = useState("");
-  const [isSpeaking, setIsSpeaking] = useState(true);
+  const [isSpeaking] = useState(true);
   const chatEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat

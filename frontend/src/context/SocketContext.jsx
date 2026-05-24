@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 
@@ -16,10 +17,9 @@ export const SocketProvider = ({ children }) => {
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       const socketInstance = io(backendUrl);
 
-      setSocket(socketInstance);
-
       socketInstance.on('connect', () => {
         socketInstance.emit('setup', user);
+        setSocket(socketInstance);
       });
 
       socketInstance.on('online_users', (users) => {
@@ -28,12 +28,8 @@ export const SocketProvider = ({ children }) => {
 
       return () => {
         socketInstance.disconnect();
-      };
-    } else {
-      if (socket) {
-        socket.disconnect();
         setSocket(null);
-      }
+      };
     }
   }, [user]);
 

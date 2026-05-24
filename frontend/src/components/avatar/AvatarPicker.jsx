@@ -1,6 +1,6 @@
 // src/components/avatar/AvatarPicker.jsx
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Avatar from "./Avatar";
 import { avatarStyles } from "./avatarStyles";
 

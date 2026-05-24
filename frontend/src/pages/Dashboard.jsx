@@ -1,94 +1,28 @@
-import { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import gsap from "gsap";
-import { io } from "socket.io-client";
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { LineChart, Line, XAxis, Tooltip, ResponsiveContainer } from "recharts";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import Avatar from "../components/avatar/Avatar";
 
 export default function Dashboard() {
-  const [isSearching, setIsSearching] = useState(false);
-  const [matchFound, setMatchFound] = useState(false);
-  const [roleSearching, setRoleSearching] = useState(null);
-  const [weather, setWeather] = useState(null);
-  const [heatmap, setHeatmap] = useState([]);
   const [storyPoints, setStoryPoints] = useState([0, 0, 0, 0, 0, 0, 0]);
   const { token, user } = useAuth();
-  const navigate = useNavigate();
-  const socketRef = useRef(null);
-
-  useEffect(() => {
-    let ctx;
-    if (isSearching) {
-      ctx = gsap.context(() => {
-        gsap.to(".pulse-ring", {
-          scale: 2,
-          opacity: 0,
-          duration: 1.5,
-          repeat: -1,
-          ease: "power2.out",
-          stagger: 0.2,
-        });
-      });
-    }
-    return () => ctx && ctx.revert();
-  }, [isSearching]);
-
-  useEffect(() => {
-    if (token) {
-      socketRef.current = io(import.meta.env.VITE_BACKEND_URL || '/');
-      
-      socketRef.current.on('support_match_found', (data) => {
-        setMatchFound(true);
-        sessionStorage.setItem('supportPartner', JSON.stringify(data.partner));
-        sessionStorage.setItem('supportRole', roleSearching);
-        setTimeout(() => {
-          navigate(`/dashboard/room/${data.roomId}`);
-        }, 1500);
-      });
-
-      return () => {
-        if (socketRef.current) socketRef.current.disconnect();
-      };
-    }
-  }, [token, roleSearching, navigate]);
-
-  useEffect(() => {
-    if (!token) return;
-
-    // Fetch Weather Context
-    fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/insights/weather-context`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setWeather(data.data);
-      });
-
-    // Fetch Heatmap (still fetching but we don't use it for the graph anymore)
-    fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/insights/heatmap`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) setHeatmap(data.data);
-      });
-  }, [token]);
 
   useEffect(() => {
     if (!token || !user) return;
 
     // Fetch Stories for Graph
-    fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/stories`, {
-      headers: { Authorization: `Bearer ${token}` }
+    fetch(`${import.meta.env.VITE_BACKEND_URL || ""}/api/v1/stories`, {
+      headers: { Authorization: `Bearer ${token}` },
     })
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data.success) {
-          const myStories = data.data.filter(s => s.author?._id === user._id || s.author === user._id);
+          const myStories = data.data.filter(
+            (s) => s.author?._id === user._id || s.author === user._id,
+          );
           const counts = [0, 0, 0, 0, 0, 0, 0];
-          myStories.forEach(story => {
+          myStories.forEach((story) => {
             const d = new Date(story.createdAt).getDay();
             const mappedDay = d === 0 ? 6 : d - 1; // 0=Mon, 6=Sun
             counts[mappedDay] += 1;
@@ -98,29 +32,13 @@ export default function Dashboard() {
       });
   }, [token, user]);
 
-  const handleStartSession = () => {
-    if (!user) return alert("Please log in to start a session");
-    setIsSearching(true);
-    setRoleSearching('seeker');
-    if (socketRef.current) {
-      socketRef.current.emit('join_support_queue', { role: 'seeker', user: { _id: user._id, name: user.name, avatar: user.avatar } });
-    }
-  };
-
-  const handleBecomeListener = () => {
-    if (!user) return alert("Please log in to become a listener");
-    setIsSearching(true);
-    setRoleSearching('listener');
-    if (socketRef.current) {
-      socketRef.current.emit('join_support_queue', { role: 'listener', user: { _id: user._id, name: user.name, avatar: user.avatar } });
-    }
-  };
-
   let cumulative = 0;
-  const chartData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((name, i) => {
-    cumulative += storyPoints[i] * 10;
-    return { name, score: cumulative };
-  });
+  const chartData = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+    (name, i) => {
+      cumulative += storyPoints[i] * 10;
+      return { name, score: cumulative };
+    },
+  );
 
   return (
     <div className="space-y-6">
@@ -138,102 +56,37 @@ export default function Dashboard() {
               Peer
             </h1>
             <p className="text-tertiary/60 mb-8 max-w-md text-sm">
-              {weather ? weather.recommendation : "Overcome burnout with 1-on-1 peer sessions designed for engineers by engineers."}
+              "Step into a community of shared happiness and heartfelt struggles, where stories bring peers closer together."
             </p>
 
             <div className="flex items-center gap-6">
-              <button
-                onClick={handleStartSession}
-                disabled={isSearching}
+            <NavLink to="stories">
+              <button 
                 className="bg-primary text-background font-bold py-3 px-8 rounded-xl flex items-center gap-2 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSearching ? "Finding Peer..." : "Start Session"}
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
                 >
-                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                </svg>
+                Tell Your Tale
               </button>
+                </NavLink>  
 
               <div className="flex -space-x-3">
-                <Avatar seed="Alice" style="bottts" size={40} className="border-2 border-surface" />
-                <Avatar seed="Bob" style="lorelei" size={40} className="border-2 border-surface" />
+                <Avatar
+                  seed="Alice"
+                  style="bottts"
+                  size={40}
+                  className="border-2 border-surface"
+                />
+                <Avatar
+                  seed="Bob"
+                  style="lorelei"
+                  size={40}
+                  className="border-2 border-surface"
+                />
                 <div className="w-10 h-10 rounded-full border-2 border-surface bg-primary/20 flex items-center justify-center text-xs font-bold z-10 relative">
                   +12
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Searching Overlay */}
-          {isSearching && !matchFound && (
-            <div className="absolute inset-0 bg-surface/90 backdrop-blur-sm z-20 flex flex-col items-center justify-center">
-              <div className="relative w-32 h-32 flex items-center justify-center mb-6">
-                <div className="absolute inset-0 border-2 border-primary rounded-full pulse-ring" />
-                <div className="absolute inset-2 border-2 border-primary/50 rounded-full pulse-ring" />
-                <div className="absolute inset-4 border-2 border-primary/30 rounded-full pulse-ring" />
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,0.6)]">
-                  <svg
-                    className="w-6 h-6 text-background animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                </div>
-              </div>
-              <h3 className="font-heading text-xl text-primary animate-pulse">
-                {roleSearching === 'listener' ? "Waiting for someone who needs to talk..." : "Scanning Network..."}
-              </h3>
-              <p className="text-tertiary/50 text-sm mt-2">
-                {roleSearching === 'listener' ? "We'll connect you when a peer is ready" : "Looking for an available listener"}
-              </p>
-            </div>
-          )}
-
-          {/* Match Found Overlay */}
-          {matchFound && (
-            <div className="absolute inset-0 bg-primary/20 backdrop-blur-md z-30 flex flex-col items-center justify-center">
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="w-24 h-24 bg-primary rounded-full flex items-center justify-center mb-4 shadow-[0_0_50px_rgba(34,211,238,0.8)]"
-              >
-                <svg
-                  className="w-12 h-12 text-background"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={3}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </motion.div>
-              <h3 className="font-heading text-2xl font-bold">Match Found!</h3>
-              <p className="text-tertiary/80 mt-2">
-                Connecting to secure room...
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Right CTA */}
@@ -266,8 +119,10 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <button onClick={handleBecomeListener} disabled={isSearching} className="w-full py-3 mt-6 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-tertiary/80 disabled:opacity-50 disabled:cursor-not-allowed">
-            {isSearching && roleSearching === 'listener' ? "Joining Queue..." : "Join as a Listener"}
+          <button
+            className="w-full py-3 mt-6 border border-white/10 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-tertiary/80"
+          >
+            Join as a Listener
           </button>
         </div>
       </div>
@@ -280,18 +135,36 @@ export default function Dashboard() {
             <div className="flex justify-between items-center mb-8">
               <h3 className="font-bold text-lg">{user.name}'s Journey</h3>
               <span className="text-xs text-primary font-label">
-                {user?.productivityMetrics?.currentResilienceScore || 88}% Resilience Score
+                {user?.productivityMetrics?.currentResilienceScore || 88}%
+                Resilience Score
               </span>
             </div>
             <div className="h-40 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartData}>
-                  <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                    itemStyle={{ color: '#22d3ee' }}
+                  <XAxis
+                    dataKey="name"
+                    stroke="#6b7280"
+                    fontSize={10}
+                    tickLine={false}
+                    axisLine={false}
                   />
-                  <Line type="monotone" dataKey="score" stroke="#22d3ee" strokeWidth={3} dot={{ fill: '#22d3ee', strokeWidth: 2 }} activeDot={{ r: 6 }} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#111827",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "8px",
+                    }}
+                    itemStyle={{ color: "#22d3ee" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#22d3ee"
+                    strokeWidth={3}
+                    dot={{ fill: "#22d3ee", strokeWidth: 2 }}
+                    activeDot={{ r: 6 }}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -303,7 +176,6 @@ export default function Dashboard() {
         )}
 
         {/* Featured Story */}
-        
 
         <div className="glass-card relative overflow-hidden group cursor-pointer">
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent z-10" />
@@ -317,19 +189,17 @@ export default function Dashboard() {
             <span className="text-[10px] font-label text-primary uppercase border border-primary/30 bg-primary/10 px-2 py-1 rounded w-fit mb-3">
               Burnout Recovery
             </span>
-            <NavLink to='stories'>
-            <h3 className="font-bold text-lg mb-2 leading-tight">
-              Finding balance after 3 major releases...
-            </h3>
-             </NavLink>
+            <NavLink to="stories">
+              <h3 className="font-bold text-lg mb-2 leading-tight">
+                Finding balance after 3 major releases...
+              </h3>
+            </NavLink>
             <p className="text-xs text-tertiary/60 line-clamp-2">
               "I thought constant shipping was the only way to prove value until
               I hit the wall at 3AM on a Friday..."
             </p>
           </div>
         </div>
-       
-
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -364,9 +234,11 @@ export default function Dashboard() {
             <span className="text-[10px] font-label text-tertiary/50 uppercase tracking-widest block mb-2">
               Relatable Stories
             </span>
-            <NavLink to="stories"><h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
-              Why 'Deep Work' requires deep rest
-            </h3></NavLink>
+            <NavLink to="stories">
+              <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
+                Why 'Deep Work' requires deep rest
+              </h3>
+            </NavLink>
             <p className="text-xs text-tertiary/60 italic">
               "My productivity tripled when I started taking mandatory walk
               breaks..."
@@ -376,7 +248,9 @@ export default function Dashboard() {
 
         <div className="glass-card p-6 flex flex-col justify-center items-center text-center relative overflow-hidden group">
           <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-          <span className="font-heading text-5xl font-bold mb-2">{user?.productivityMetrics?.totalFocusSessions || 24}</span>
+          <span className="font-heading text-5xl font-bold mb-2">
+            {user?.productivityMetrics?.totalFocusSessions || 24}
+          </span>
           <span className="text-[10px] font-label text-primary uppercase tracking-widest border-b-2 border-primary pb-1">
             Total Focus Sessions
           </span>

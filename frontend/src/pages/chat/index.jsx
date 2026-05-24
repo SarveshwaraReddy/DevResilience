@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ChatSidebar from '../../components/chat/ChatSidebar';
 import ChatWindow from '../../components/chat/ChatWindow';
 import CommunityRoomWindow from '../../components/chat/CommunityRoomWindow';
@@ -21,6 +22,7 @@ export default function ChatDashboard() {
   const [activeTab, setActiveTab] = useState('direct'); // 'direct' or 'rooms'
   const { socket, onlineUsers } = useSocket();
   const { token, user } = useAuth();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (token) {
@@ -28,13 +30,53 @@ export default function ChatDashboard() {
         headers: { Authorization: `Bearer ${token}` }
       })
       .then(res => res.json())
-      .then(data => {
+      .then(async (data) => {
         if (data.success) {
           setConversations(data.data);
+          
+          const selectConvId = searchParams.get('convId');
+          const selectUserId = searchParams.get('userId');
+          
+          if (selectConvId) {
+            const found = data.data.find(c => c._id === selectConvId);
+            if (found) {
+              setSelectedConversation(found);
+            }
+          } else if (selectUserId) {
+            const found = data.data.find(c => 
+              c.participants.some(p => p._id === selectUserId)
+            );
+            if (found) {
+              setSelectedConversation(found);
+            } else {
+              try {
+                const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || ''}/api/v1/chat/conversations`, {
+                  method: 'POST',
+                  headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}` 
+                  },
+                  body: JSON.stringify({ receiverId: selectUserId })
+                });
+                const createData = await res.json();
+                if (createData.success) {
+                  setConversations(prev => {
+                    if (!prev.find(c => c._id === createData.data._id)) {
+                      return [createData.data, ...prev];
+                    }
+                    return prev;
+                  });
+                  setSelectedConversation(createData.data);
+                }
+              } catch (err) {
+                console.error('Failed to create/get conversation', err);
+              }
+            }
+          }
         }
       });
     }
-  }, [token]);
+  }, [token, searchParams]);
 
   // Handle incoming messages
   useEffect(() => {
