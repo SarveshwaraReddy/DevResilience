@@ -1,34 +1,53 @@
+import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
-import { Search, Bell } from "lucide-react";
+import { Search, Bell, Menu } from "lucide-react";
 import Avatar from "../components/avatar/Avatar";
 import { useAuth } from "../context/AuthContext";
 
 export default function AppLayout() {
   const { user } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <div className="flex bg-background min-h-screen text-tertiary font-body">
-      <Sidebar />
+      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
       <div className="flex-1 flex flex-col relative overflow-hidden">
         {/* Topbar */}
-        <header className="h-20 border-b border-white/5 flex items-center justify-between px-8 z-10 glass sticky top-0">
-          <div className="flex items-center gap-6 text-sm text-tertiary/60 font-medium">
-            <span className="text-tertiary">Dashboard</span>
-            <NavLink to="/dashboard/stories">
-              {" "}
-              <span className="hover:text-tertiary cursor-pointer transition-colors">
-                Stories
-              </span>{" "}
-            </NavLink>
-            <NavLink to="/dashboard/network">
-              <span className="hover:text-tertiary cursor-pointer transition-colors">
-                Network
-              </span>
-            </NavLink>
+        <header className="h-20 border-b border-white/5 flex items-center justify-between px-4 md:px-8 z-10 glass sticky top-0">
+          <div className="flex items-center gap-2 md:gap-6 text-sm text-tertiary/60 font-medium">
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="p-2 -ml-2 text-tertiary/80 hover:text-tertiary md:hidden transition-colors"
+              aria-label="Open menu"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            
+            <div className="hidden md:flex items-center gap-6">
+              <span className="text-tertiary">Dashboard</span>
+              <NavLink to="/dashboard/stories">
+                {" "}
+                <span className="hover:text-tertiary cursor-pointer transition-colors">
+                  Stories
+                </span>{" "}
+              </NavLink>
+              <NavLink to="/dashboard/network">
+                <span className="hover:text-tertiary cursor-pointer transition-colors">
+                  Network
+                </span>
+              </NavLink>
+            </div>
+
+            {/* Mobile Branding */}
+            <div className="flex md:hidden items-center gap-2 font-heading font-bold text-primary tracking-wide text-base">
+              <div className="w-5 h-5 rounded bg-gradient-to-br from-primary to-secondary" />
+              <span>DevResilience</span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="relative">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="relative hidden sm:block">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-tertiary/40" />
               <input
                 type="text"
@@ -50,7 +69,7 @@ export default function AppLayout() {
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           <Outlet />
         </main>
       </div>

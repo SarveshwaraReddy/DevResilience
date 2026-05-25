@@ -62,15 +62,15 @@ export default function Auth() {
 
   return (
     <div
-      className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden"
+      className="min-h-screen bg-background flex flex-col items-center justify-between p-4 md:p-8 relative overflow-y-auto"
       ref={containerRef}
     >
       {/* Decorative Background */}
-      <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -translate-y-1/2" />
-      <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -translate-y-1/2" />
+      <div className="absolute top-1/2 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -translate-y-1/2 pointer-events-none" />
+      <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] -translate-y-1/2 pointer-events-none" />
 
       {/* Header */}
-      <div className="absolute top-8 w-full px-12 flex justify-between items-center text-sm font-label z-10">
+      <header className="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center gap-4 text-sm font-label z-10 mb-8 md:mb-0">
         <div className="font-heading font-bold text-primary text-xl flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-secondary" />
           DevResilience
@@ -83,16 +83,17 @@ export default function Auth() {
             SUPPORT
           </span>
         </div>
-      </div>
+      </header>
 
-      <div className="flex w-full max-w-[1000px] h-[600px] glass-card z-10">
+      {/* Main Card */}
+      <div className="flex flex-col md:flex-row w-full max-w-5xl glass-card z-10 my-auto">
         {/* Left Side: Value Prop */}
-        <div className="flex-1 relative p-12 flex flex-col justify-center bg-gradient-to-br from-surface to-background border-r border-white/5">
+        <div className="flex-1 relative p-6 md:p-12 flex flex-col justify-center bg-gradient-to-br from-surface to-background border-b md:border-b-0 md:border-r border-white/5">
           <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent pointer-events-none" />
-          <h1 className="font-heading text-4xl mb-4 leading-tight">
+          <h1 className="font-heading text-3xl md:text-4xl mb-4 leading-tight">
             Elevate Your Connectivity
           </h1>
-          <p className="text-tertiary/60 mb-8 font-body leading-relaxed max-w-sm">
+          <p className="text-tertiary/60 mb-8 font-body leading-relaxed max-w-sm text-sm md:text-base">
             Access the next generation of digital synergy within the Aetheris
             ecosystem.
           </p>
@@ -111,9 +112,9 @@ export default function Auth() {
         </div>
 
         {/* Right Side: Form */}
-        <div className="flex-[1.2] p-12 flex flex-col bg-surface relative overflow-y-auto">
-          <div className="my-auto py-8">
-            <h2 className="font-heading text-3xl stagger-item">
+        <div className="flex-[1.2] p-6 md:p-12 flex flex-col bg-surface relative overflow-y-auto">
+          <div className="my-auto py-4 md:py-8">
+            <h2 className="font-heading text-2xl md:text-3xl stagger-item">
               {isLogin ? "Welcome Back" : "Create Account"}
             </h2>
           <p className="text-tertiary/50 text-sm mb-4 stagger-item">
@@ -181,11 +182,6 @@ export default function Auth() {
                 <label className="block text-sm font-label text-tertiary/80">
                   Security Key
                 </label>
-                {/* {isLogin && (
-                  <span className="text-[10px] text-tertiary/40 uppercase tracking-wider cursor-pointer hover:text-primary transition">
-                    Forgot Password?
-                  </span>
-                )} */}
               </div>
               <div className="relative">
                 <input
@@ -200,7 +196,7 @@ export default function Auth() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-0 top-1/2 -translate-y-1/2 text-primary transition-colors bg-transparent border-none cursor-pointer p-2"
                 >
-                  {showPassword ? <i class="ri-eye-off-line"></i> : <i class="ri-eye-line"></i>}
+                  {showPassword ? <i className="ri-eye-off-line"></i> : <i className="ri-eye-line"></i>}
                 </button>
               </div>
             </div>
@@ -241,31 +237,12 @@ export default function Auth() {
               </button>
             </div>
           </form>
-
-          {/* <div className="mt-4 flex items-center gap-4 stagger-item">
-            <div className="flex-1 h-[1px] bg-white/5"></div>
-            <span className="text-[10px] text-tertiary/40 uppercase tracking-widest">
-              Or Register Via
-            </span>
-            <div className="flex-1 h-[1px] bg-white/5"></div>
-          </div> */}
-
-          {/* <div className="mt-2 flex gap-4 stagger-item">
-            <button className="flex-1 py-3 border border-white/5 rounded-lg flex items-center justify-center gap-2 hover:bg-white/5 transition text-xs font-label text-tertiary/60">
-              <div className="w-4 h-4 bg-tertiary/80 mask-network"></div>{" "}
-              Network
-            </button>
-            <button className="flex-1 py-3 border border-white/5 rounded-lg flex items-center justify-center gap-2 hover:bg-white/5 transition text-xs font-label text-tertiary/60">
-              <div className="w-4 h-4 bg-tertiary/80 mask-terminal"></div>{" "}
-              Terminal
-            </button>
-          </div> */}
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="absolute bottom-0 w-full p-6 flex justify-between items-center text-[10px] text-tertiary/40 uppercase tracking-widest border-t border-white/5 bg-background/80 backdrop-blur-md">
+      <footer className="w-full max-w-5xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-tertiary/40 uppercase tracking-widest border-t border-white/5 mt-8 md:mt-0 z-10">
         <span>© 2026 DevResilience. Built for the resilient.</span>
         <div className="flex gap-6">
           <span className="hover:text-tertiary cursor-pointer transition">
@@ -278,7 +255,7 @@ export default function Auth() {
             Help Center
           </span>
         </div>
-      </div>
+      </footer>
     </div>
             );
 }

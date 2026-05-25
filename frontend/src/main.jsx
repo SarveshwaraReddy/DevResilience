@@ -14,12 +14,14 @@ import { SocketProvider } from "./context/SocketContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./index.css";
 import Profile from "./pages/Profile";
+// import Cursor from "./components/Cursor";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
+          {/* <Cursor/> */}
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<Landing />} />
@@ -41,8 +43,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 path="notifications"
                 element={
                   <div className="p-8 text-tertiary">
-                    <h1 className="text-2xl font-heading mb-4">Notifications</h1>
-                    <p className="text-tertiary/60">This feature is under development.</p>
+                    <h1 className="text-2xl font-heading mb-4">
+                      Notifications
+                    </h1>
+                    <p className="text-tertiary/60">
+                      This feature is under development.
+                    </p>
                   </div>
                 }
               />
@@ -50,8 +56,12 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 path="ai-tools"
                 element={
                   <div className="p-8 text-tertiary">
-                    <h1 className="text-2xl font-heading mb-4">AI Tools Dashboard</h1>
-                    <p className="text-tertiary/60">This feature is under development.</p>
+                    <h1 className="text-2xl font-heading mb-4">
+                      AI Tools Dashboard
+                    </h1>
+                    <p className="text-tertiary/60">
+                      This feature is under development.
+                    </p>
                   </div>
                 }
               />
