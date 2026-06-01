@@ -219,7 +219,7 @@ export default function Dashboard() {
           <h3 className="font-bold text-sm mb-2">
             Managing Imposter Syndrome in Senior Roles
           </h3>
-          <p className="text-xs text-tertiary/50">
+          <p className="text-xs text-tertiary/50">dev
             A practical guide by Principal Engineer Marcus...
           </p>
         </div>

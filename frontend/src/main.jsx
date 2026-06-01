@@ -14,14 +14,14 @@ import { SocketProvider } from "./context/SocketContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import "./index.css";
 import Profile from "./pages/Profile";
-// import Cursor from "./components/Cursor";
+import Cursor from "./components/Cursor";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <SocketProvider>
-          {/* <Cursor/> */}
+          <Cursor/>
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route path="/" element={<Landing />} />

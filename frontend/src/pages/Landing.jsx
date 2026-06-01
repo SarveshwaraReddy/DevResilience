@@ -105,7 +105,7 @@ export default function DevResilience3D() {
         transition={{ duration: 1 }}
         className="relative z-50 flex items-center justify-between px-8 py-6 border-b border-white/10 backdrop-blur-xl"
       >
-        <h1 className="text-3xl font-black tracking-wide">
+        <h1 className="text-3xl font-black tracking-wide sm:text-10px">
           Dev<span className="text-cyan-400">Resilience</span>
         </h1>
 
